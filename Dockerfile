@@ -28,5 +28,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 EXPOSE 10000
 
-# Start PHP built-in server directly targeting the public directory
-CMD php -S 0.0.0.0:10000 -t public
+# Start Laravel using artisan serve with proper routing
+CMD php artisan serve --host=0.0.0.0 --port=10000
