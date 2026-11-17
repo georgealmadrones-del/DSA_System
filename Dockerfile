@@ -21,10 +21,6 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
-# DEBUG: Print contents of working directory to Render build logs to verify files/public folder exist
-RUN echo "=== ROOT DIRECTORY ===" && ls -la /var/www/html \
-    && echo "=== PUBLIC DIRECTORY ===" && ls -la /var/www/html/public || echo "Public folder missing!"
-
 # Install PHP dependencies via Composer
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
@@ -36,12 +32,12 @@ RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 # Configure PHP-FPM to listen on TCP port 9000
 RUN echo "listen = 127.0.0.1:9000" >> /usr/local/etc/php-fpm.d/www.conf
 
-# Set proper permissions for Laravel storage, cache, and public files
+# Set proper permissions for Laravel storage and cache
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
 EXPOSE 10000
 
-# Start PHP-FPM in the background and Nginx in the foreground
-CMD php-fpm -D && nginx -g "daemon off;"
+# Start PHP-FPM and Nginx
+CMD php artisan config:clear && php artisan route:clear && php-fpm -D && nginx -g "daemon off;"
