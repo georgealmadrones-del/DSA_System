@@ -28,5 +28,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 EXPOSE 10000
 
-# Start Laravel using artisan serve with proper routing
+# Start Laravel using artisan serve with correct built-in routing
 CMD php artisan serve --host=0.0.0.0 --port=10000
