@@ -9,7 +9,7 @@ ENV PHP_ERRORS_STDERR 1
 ENV RUN_SCRIPTS 1
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Run composer install ignoring platform version requirements
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+# Run composer install ignoring platform reqs and skipping scripts to prevent syntax failure
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
 
 EXPOSE 80
