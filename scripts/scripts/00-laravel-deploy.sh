@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-echo "Running composer..."
-composer install --no-dev --working-dir=/var/www/html
+echo "Running database migrations..."
+php artisan migrate --force
 
-echo "Caching config..."
+echo "Caching configuration..."
 php artisan config:cache
 
 echo "Caching routes..."
 php artisan route:cache
 
-echo "Running migrations..."
-php artisan migrate --force
+echo "Clearing views..."
+php artisan view:clear

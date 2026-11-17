@@ -9,4 +9,7 @@ ENV PHP_ERRORS_STDERR 1
 ENV RUN_SCRIPTS 1
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
+# Run composer install explicitly to generate vendor folder
+RUN composer install --no-dev --optimize-autoloader
+
 EXPOSE 80
