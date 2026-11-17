@@ -1,7 +1,8 @@
 FROM php:8.2-fpm
 
-# Install system dependencies and required PHP extensions
+# Install system dependencies, Nginx, and required PHP extensions
 RUN apt-get update && apt-get install -y \
+    nginx \
     git \
     curl \
     libpng-dev \
@@ -23,10 +24,13 @@ COPY . .
 # Install PHP dependencies via Composer
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/sites-available/default
+
 # Set permissions for Laravel storage and cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 10000
 
-# Start Laravel using artisan serve with correct built-in routing
-CMD php artisan serve --host=0.0.0.0 --port=10000
+# Start PHP-FPM and Nginx in the foreground
+CMD service php8.2-fpm start && nginx -g "daemon off;"
