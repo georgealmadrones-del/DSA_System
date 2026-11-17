@@ -29,11 +29,13 @@ RUN rm -f /etc/nginx/sites-enabled/default
 COPY nginx.conf /etc/nginx/sites-available/default
 RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
+# Configure PHP-FPM to listen on TCP port 9000 instead of a socket
+RUN echo "listen = 127.0.0.1:9000" >> /usr/local/etc/php-fpm.d/www.conf
+
 # Set permissions for Laravel storage and cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && mkdir -p /var/run/php
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 10000
 
-# Start PHP-FPM and Nginx
+# Start PHP-FPM in the background and Nginx in the foreground
 CMD php-fpm -D && nginx -g "daemon off;"
