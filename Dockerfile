@@ -32,5 +32,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 EXPOSE 10000
 
-# Start PHP-FPM and Nginx in the foreground
-CMD service php8.2-fpm start && nginx -g "daemon off;"
+# Start PHP-FPM in the background and Nginx in the foreground
+CMD php-fpm -D && nginx -g "daemon off;"
