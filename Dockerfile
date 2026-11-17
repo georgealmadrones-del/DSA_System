@@ -24,13 +24,16 @@ COPY . .
 # Install PHP dependencies via Composer
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
-# Copy custom Nginx configuration
+# Configure Nginx
+RUN rm -f /etc/nginx/sites-enabled/default
 COPY nginx.conf /etc/nginx/sites-available/default
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Set permissions for Laravel storage and cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && mkdir -p /var/run/php
 
 EXPOSE 10000
 
-# Start PHP-FPM in the background and Nginx in the foreground
+# Start PHP-FPM and Nginx
 CMD php-fpm -D && nginx -g "daemon off;"
