@@ -21,6 +21,10 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
+# DEBUG: Print contents of working directory to Render build logs to verify files/public folder exist
+RUN echo "=== ROOT DIRECTORY ===" && ls -la /var/www/html \
+    && echo "=== PUBLIC DIRECTORY ===" && ls -la /var/www/html/public || echo "Public folder missing!"
+
 # Install PHP dependencies via Composer
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
