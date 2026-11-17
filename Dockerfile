@@ -28,5 +28,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 
 EXPOSE 10000
 
-# Start Laravel built-in server bound to Render's required port
-CMD php artisan serve --host=0.0.0.0 --port=10000
+# Start Laravel server pointing specifically to the public directory
+CMD php artisan serve --host=0.0.0.0 --port=10000 --public=public
