@@ -1,15 +1,32 @@
-FROM richarvey/nginx-php-fpm:latest
+FROM php:8.2-fpm
 
+# Install system dependencies and required PHP extensions
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy application files
 COPY . .
 
-# Image configuration
-ENV SKIP_COMPOSER 0
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV COMPOSER_ALLOW_SUPERUSER 1
+# Install PHP dependencies via Composer
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
-# Run composer install ignoring platform reqs and skipping scripts to prevent syntax failure
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-scripts
+# Set permissions for Laravel storage and cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-EXPOSE 80
+EXPOSE 10000
+
+# Start Laravel built-in server bound to Render's required port
+CMD php artisan serve --host=0.0.0.0 --port=10000
