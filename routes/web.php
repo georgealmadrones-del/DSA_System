@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Artisan;
 
-// Auto-create SQLite database file and run migrations if missing in cloud/production
+// Auto-create SQLite database file, run migrations, and seed default user safely
 try {
     $dbPath = database_path('database.sqlite');
     if (config('database.default') === 'sqlite' && !file_exists($dbPath)) {
@@ -20,8 +20,21 @@ try {
         file_put_contents($dbPath, '');
         Artisan::call('migrate', ['--force' => true]);
     }
+
+    // Ensure default fallback user always exists so login never fails on container restarts
+    if (Schema::hasTable('users')) {
+        if (User::where('email', 'george@edu.core')->doesntExist()) {
+            User::create([
+                'workspace_name' => 'EduCore Workspace',
+                'admin_name' => 'George',
+                'name' => 'George',
+                'email' => 'george@edu.core',
+                'password' => '123456789', // Handled automatically by User model 'hashed' cast
+            ]);
+        }
+    }
 } catch (\Exception $e) {
-    // Fail silently if directory isn't writable yet
+    // Fail silently to prevent any system startup crash
 }
 
 // Automatically ensure the 'course' column exists in production to prevent SQLSTATE 1054 errors
