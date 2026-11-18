@@ -6,6 +6,15 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+
+// Automatically ensure the 'course' column exists in production to prevent SQLSTATE 1054 errors
+if (Schema::hasTable('students') && !Schema::hasColumn('students', 'course')) {
+    Schema::table('students', function (Blueprint $table) {
+        $table->string('course')->nullable()->after('name');
+    });
+}
 
 // Root URL -> Welcome / Landing Page (Real-time DB stats)
 Route::get('/', function () {

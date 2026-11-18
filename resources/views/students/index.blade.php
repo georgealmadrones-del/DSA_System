@@ -319,7 +319,7 @@ tailwind.config = {
             </div>
             <div>
                 <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Full Name</label>
-                <input type="text" name="name" required placeholder="e.g. Aj Añonuevo" class="w-full px-3 py-2 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner">
+                <input type="text" name="name" required placeholder="Enter a name" class="w-full px-3 py-2 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner">
             </div>
             <div>
                 <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Course</label>
