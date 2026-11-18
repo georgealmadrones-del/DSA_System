@@ -23,7 +23,75 @@ tailwind.config = {
 </head>
 <body class="bg-[#FCFBF7] text-charcoal font-sans antialiased h-screen overflow-hidden flex selection:bg-slateblue/20">
 
-<!-- Fixed Left Sidebar Navigation -->
+<!-- Mobile Sidebar Overlay Drawer -->
+<div id="mobileSidebar" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-50 hidden md:hidden flex">
+    <div class="w-64 h-full bg-[#FFFEEB] border-r border-coolgrey/30 flex flex-col justify-between shadow-2xl p-4">
+        <div>
+            <!-- Drawer Header & Close Button -->
+            <div class="flex items-center justify-between pb-4 border-b border-coolgrey/20">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-xl bg-charcoal flex items-center justify-center text-white shadow-md">
+                        <div class="grid grid-cols-2 gap-0.5">
+                            <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                            <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                            <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                            <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                        </div>
+                    </div>
+                    <span class="font-extrabold text-sm text-charcoal">EduCore SaaS</span>
+                </div>
+                <button onclick="toggleMobileSidebar()" class="text-gray-400 hover:text-charcoal font-bold text-lg p-1">✕</button>
+            </div>
+
+            <!-- Workspace Selector -->
+            <div class="py-4">
+                <div class="p-3 bg-white rounded-2xl border border-coolgrey/30 flex items-center justify-between text-xs shadow-sm">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-7 h-7 rounded-xl bg-gray-50 border border-coolgrey/30 flex items-center justify-center font-bold text-[10px] text-charcoal">EA</div>
+                        <div>
+                            <p class="font-bold text-charcoal leading-tight">{{ session('workspace_name', 'Eastwood Academy') }}</p>
+                            <p class="text-[10px] text-slateblue font-medium mt-0.5">Academic workspace</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Links -->
+            <nav class="space-y-1">
+                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slateblue/70 mb-2">Workspace</p>
+                <a href="{{ route('students.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-2xl bg-white text-charcoal font-bold text-xs border border-coolgrey/30 shadow-md">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-1.5 h-1.5 rounded-full bg-charcoal"></span>
+                        <span>Dashboard</span>
+                    </div>
+                </a>
+                <a href="{{ route('students.directory') }}" class="flex items-center justify-between px-3 py-2.5 rounded-2xl text-charcoal/70 hover:bg-white/60 text-xs font-semibold transition">
+                    <span>Student Directory</span>
+                    <span class="px-1.5 py-0.5 bg-gray-100 text-charcoal rounded-md text-[10px] font-bold">{{ $totalStudents }}</span>
+                </a>
+                <a href="{{ route('actions') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-2xl text-charcoal/70 hover:bg-white/60 text-xs font-semibold transition">
+                    <span>Actions</span>
+                </a>
+                <a href="{{ route('settings') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-2xl text-charcoal/70 hover:bg-white/60 text-xs font-semibold transition">
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Mobile Drawer Footer / Logout -->
+        <div class="pt-4 border-t border-coolgrey/20">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="w-full py-2.5 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold hover:bg-rose-100 transition flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span>Log Out</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Fixed Desktop Left Sidebar Navigation -->
 <aside class="w-64 h-full bg-[#FFFEEB]/80 backdrop-blur-md border-r border-coolgrey/30 flex flex-col justify-between hidden md:flex shrink-0 shadow-lg">
     <div>
         <!-- Logo Area -->
@@ -107,16 +175,22 @@ tailwind.config = {
 
 <!-- Scrollable Right Main Content Wrapper -->
 <main class="flex-1 h-full flex flex-col min-w-0 overflow-hidden">
-    <!-- Top Header Bar -->
-    <header class="bg-[#FCFBF7] border-b border-coolgrey/20 h-16 flex items-center justify-between px-8 shrink-0 shadow-sm">
-        <div class="text-xs text-slateblue font-medium">Workspace / <span class="text-charcoal font-semibold">Dashboard</span></div>
+    <!-- Top Header Bar with Mobile Hamburger -->
+    <header class="bg-[#FCFBF7] border-b border-coolgrey/20 h-16 flex items-center justify-between px-6 shrink-0 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <!-- Hamburger Menu Button for Mobile -->
+            <button onclick="toggleMobileSidebar()" class="md:hidden p-2 text-charcoal hover:bg-gray-100 rounded-xl transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div class="text-xs text-slateblue font-medium">Workspace / <span class="text-charcoal font-semibold">Dashboard</span></div>
+        </div>
         <div class="flex items-center space-x-3">
             <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-charcoal text-white font-bold text-xs flex items-center justify-center shadow-md cursor-pointer">AD</div>
         </div>
     </header>
 
     <!-- Independent Scrolling Area -->
-    <div class="flex-1 overflow-y-auto p-8 space-y-6">
+    <div class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
         <!-- Greeting Banner -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-white p-6 rounded-3xl border border-coolgrey/20 shadow-md">
             <div>
@@ -126,7 +200,7 @@ tailwind.config = {
                 <h1 id="live-greeting" class="text-2xl font-extrabold tracking-tight text-charcoal">Good morning, {{ session('admin_name', 'Alex') }}.</h1>
                 <p class="text-xs text-slateblue mt-0.5">Here's what's happening with your student records today.</p>
             </div>
-            <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="mt-4 md:mt-0 px-5 py-3 bg-charcoal text-white rounded-2xl text-xs font-bold hover:bg-charcoal/90 transition shadow-lg flex items-center space-x-2">
+            <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="mt-4 md:mt-0 px-5 py-3 bg-charcoal text-white rounded-2xl text-xs font-bold hover:bg-charcoal/90 transition shadow-lg flex items-center justify-center space-x-2">
                 <span>+ Add Student</span>
             </button>
         </div>
@@ -227,9 +301,9 @@ tailwind.config = {
                     <p class="text-xs text-slateblue mt-0.5">Manage and review all enrolled student records.</p>
                 </div>
                 <!-- Search and Sort Toolbar -->
-                <form method="GET" action="{{ route('students.index') }}" class="flex items-center space-x-3">
+                <form method="GET" action="{{ route('students.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <div class="relative">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search student..." class="pl-9 pr-12 py-2 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 w-64 shadow-inner">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search student..." class="w-full sm:w-64 pl-9 pr-12 py-2 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner">
                         <svg class="w-4 h-4 text-coolgrey absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         <span class="absolute right-2.5 top-2 text-charcoal px-1.5 py-0.5 rounded text-[10px] bg-gray-200 font-mono">HK</span>
                     </div>
@@ -392,8 +466,13 @@ tailwind.config = {
     </div>
 </div>
 
-<!-- JavaScript to populate Modals & Real-Time Date/Greeting -->
+<!-- JavaScript for Mobile Drawer, Modals, and Real-Time Date/Greeting -->
 <script>
+function toggleMobileSidebar() {
+    const sidebar = document.getElementById('mobileSidebar');
+    sidebar.classList.toggle('hidden');
+}
+
 function openEditModal(id, studentId, name, course, gpa) {
     const form = document.getElementById('editForm');
     form.action = `/students/${id}`;
