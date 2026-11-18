@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Models\ActionLog;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -49,17 +50,35 @@ class StudentController extends Controller
     {
         $students = Student::latest()->get();
         $totalStudents = Student::count();
-        return view('students.directory', compact('students', 'totalStudents'));
+        
+        if (view()->exists('students.directory')) {
+            return view('students.directory', compact('students', 'totalStudents'));
+        }
+        return view('students.index', compact('students', 'totalStudents'));
     }
 
     public function actions()
     {
-        return view('students.actions');
+        $logs = class_exists(ActionLog::class) ? ActionLog::latest()->take(20)->get() : collect();
+        
+        if (view()->exists('students.actions')) {
+            return view('students.actions', compact('logs'));
+        } elseif (view()->exists('actions')) {
+            return view('actions', compact('logs'));
+        }
+        
+        return view('students.index', compact('logs'));
     }
 
     public function settings()
     {
-        return view('students.settings');
+        if (view()->exists('students.settings')) {
+            return view('students.settings');
+        } elseif (view()->exists('settings')) {
+            return view('settings');
+        }
+        
+        return view('students.index');
     }
 
     public function store(Request $request)
@@ -71,7 +90,15 @@ class StudentController extends Controller
             'gpa' => 'required|numeric|between:1.00,3.00',
         ]);
 
-        Student::create($validated);
+        $student = Student::create($validated);
+
+        try {
+            if (class_exists(ActionLog::class)) {
+                ActionLog::create([
+                    'event' => "Added new student: {$student->name} ({$student->student_id})"
+                ]);
+            }
+        } catch (\Exception $e) {}
 
         return redirect()->route('students.index');
     }
@@ -87,18 +114,44 @@ class StudentController extends Controller
 
         $student->update($validated);
 
+        try {
+            if (class_exists(ActionLog::class)) {
+                ActionLog::create([
+                    'event' => "Updated student: {$student->name} ({$student->student_id})"
+                ]);
+            }
+        } catch (\Exception $e) {}
+
         return redirect()->route('students.index');
     }
 
     public function destroy(Student $student)
     {
+        $name = $student->name;
+        $studentId = $student->student_id;
         $student->delete();
+
+        try {
+            if (class_exists(ActionLog::class)) {
+                ActionLog::create([
+                    'event' => "Deleted student: {$name} ({$studentId})"
+                ]);
+            }
+        } catch (\Exception $e) {}
 
         return redirect()->route('students.index');
     }
 
     public function updateSettings(Request $request)
     {
+        try {
+            if (class_exists(ActionLog::class)) {
+                ActionLog::create([
+                    'event' => "Updated workspace settings"
+                ]);
+            }
+        } catch (\Exception $e) {}
+
         return back()->with('success', 'Settings updated successfully.');
     }
 }
