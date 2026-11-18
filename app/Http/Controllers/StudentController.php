@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Models;
 
-use App\Models\Student;
+use App\Http\Controllers\StudentController;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -34,7 +34,13 @@ class StudentController extends Controller
         $students = $query->get();
         $totalStudents = Student::count();
         $averageGpa = Student::avg('gpa') ?? 0;
-        $activeCoursesCount = Student::distinct('course')->count('course') > 0 ? Student::distinct('course')->count('course') : 0;
+        
+        // Safe count for active courses to prevent SQL/collection errors
+        try {
+            $activeCoursesCount = Student::whereNotNull('course')->distinct('course')->count('course');
+        } catch (\Exception $e) {
+            $activeCoursesCount = 0;
+        }
 
         return view('students.index', compact('students', 'totalStudents', 'averageGpa', 'activeCoursesCount'));
     }
