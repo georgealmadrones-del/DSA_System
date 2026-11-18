@@ -20,12 +20,19 @@ try {
     // Fail silently if database isn't fully ready yet
 }
 
-// Root URL -> Welcome / Landing Page (Real-time DB stats)
+// Root URL -> Welcome / Landing Page (Real-time DB stats with error protection)
 Route::get('/', function () {
-    $totalStudents = Student::count();
-    $averageGpa = Student::avg('gpa') ?? 0;
-    $activeCoursesCount = Student::count() > 0 ? 1 : 0;
-    $students = Student::latest()->take(5)->get();
+    try {
+        $totalStudents = Student::count();
+        $averageGpa = Student::avg('gpa') ?? 0;
+        $activeCoursesCount = Student::count() > 0 ? 1 : 0;
+        $students = Student::latest()->take(5)->get();
+    } catch (\Exception $e) {
+        $totalStudents = 0;
+        $averageGpa = 0.00;
+        $activeCoursesCount = 0;
+        $students = collect();
+    }
 
     return view('welcome', compact('totalStudents', 'averageGpa', 'activeCoursesCount', 'students'));
 })->name('welcome');
