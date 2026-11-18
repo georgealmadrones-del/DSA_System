@@ -7,14 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
 
-
-// Root URL -> Redirects directly to the students index
+// Root URL -> Welcome / Landing Page (Real-time DB stats)
 Route::get('/', function () {
-    return redirect()->route('students.index');
-});
-
-// Welcome / Landing Page (Real-time DB stats)
-Route::get('/welcome', function () {
     $totalStudents = Student::count();
     $averageGpa = Student::avg('gpa') ?? 0;
     $activeCoursesCount = Student::count() > 0 ? 1 : 0;
