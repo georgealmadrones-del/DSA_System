@@ -178,7 +178,6 @@ tailwind.config = {
     <!-- Top Header Bar with Mobile Hamburger -->
     <header class="bg-[#FCFBF7] border-b border-coolgrey/20 h-16 flex items-center justify-between px-6 shrink-0 shadow-sm">
         <div class="flex items-center space-x-3">
-            <!-- Hamburger Menu Button for Mobile -->
             <button onclick="toggleMobileSidebar()" class="md:hidden p-2 text-charcoal hover:bg-gray-100 rounded-xl transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
@@ -385,6 +384,18 @@ tailwind.config = {
             <h3 class="text-base font-bold text-charcoal">Add New Student Record</h3>
             <button onclick="document.getElementById('addModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-sm font-bold">X</button>
         </div>
+        
+        <!-- Validation Error Display -->
+        @if ($errors->any())
+            <div class="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-600">
+                <ul class="list-disc pl-4">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form action="{{ route('students.store') }}" method="POST" class="space-y-4">
             @csrf
             <div>
@@ -405,7 +416,7 @@ tailwind.config = {
             </div>
             <div class="flex justify-end space-x-3 pt-2">
                 <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="px-4 py-2 bg-gray-100 text-charcoal rounded-xl text-xs font-semibold">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-charcoal text-white rounded-xl text-xs font-semibold hover:bg-charcoal/90 transition shadow-md">Save Record</button>
+                <button type="submit" onclick="this.innerHTML='Saving...'; this.disabled=true; this.form.submit();" class="px-4 py-2 bg-charcoal text-white rounded-xl text-xs font-semibold hover:bg-charcoal/90 transition shadow-md">Save Record</button>
             </div>
         </form>
     </div>
