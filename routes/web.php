@@ -10,10 +10,14 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
 // Automatically ensure the 'course' column exists in production to prevent SQLSTATE 1054 errors
-if (Schema::hasTable('students') && !Schema::hasColumn('students', 'course')) {
-    Schema::table('students', function (Blueprint $table) {
-        $table->string('course')->nullable()->after('name');
-    });
+try {
+    if (Schema::hasTable('students') && !Schema::hasColumn('students', 'course')) {
+        Schema::table('students', function (Blueprint $table) {
+            $table->string('course')->nullable()->after('name');
+        });
+    }
+} catch (\Exception $e) {
+    // Fail silently if database isn't fully ready yet
 }
 
 // Root URL -> Welcome / Landing Page (Real-time DB stats)
