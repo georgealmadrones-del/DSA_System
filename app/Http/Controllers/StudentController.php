@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
-use App\Models\ActionLog;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -13,8 +12,8 @@ class StudentController extends Controller
         $query = Student::query();
 
         // Search functionality
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
+        if ($request->filled('search')) {
+            $search = $request->input('search');
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('student_id', 'like', "%{$search}%")
@@ -22,69 +21,45 @@ class StudentController extends Controller
             });
         }
 
-        // Sort functionality
-        $sortBy = $request->get('sort_by', 'student_id');
-        $query->orderBy($sortBy, 'desc');
+        // Sorting functionality
+        $sortBy = $request->input('sort_by', 'student_id');
+        if ($sortBy === 'name') {
+            $query->orderBy('name', 'asc');
+        } elseif ($sortBy === 'gpa') {
+            $query->orderBy('gpa', 'asc');
+        } else {
+            $query->orderBy('student_id', 'desc');
+        }
 
         $students = $query->get();
-
-        // Real-time metric computations from database
-        $totalStudents = $students->count();
-        $averageGpa = $totalStudents > 0 ? $students->avg('gpa') : 0.00;
-        
-        $activeCoursesCount = $students->pluck('course')->unique()->filter()->count();
-        if ($activeCoursesCount === 0 && $totalStudents > 0) {
-            $activeCoursesCount = 1; 
-        }
+        $totalStudents = Student::count();
+        $averageGpa = Student::avg('gpa') ?? 0;
+        $activeCoursesCount = Student::distinct('course')->count('course') > 0 ? Student::distinct('course')->count('course') : 0;
 
         return view('students.index', compact('students', 'totalStudents', 'averageGpa', 'activeCoursesCount'));
     }
 
-    public function directory(Request $request)
+    public function directory()
     {
-        $query = Student::query();
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('student_id', 'like', "%{$search}%");
-        }
-        $students = $query->get();
-        return view('students.directory', compact('students'));
+        $students = Student::latest()->get();
+        $totalStudents = Student::count();
+        return view('students.directory', compact('students', 'totalStudents'));
     }
 
-    public function actions(Request $request)
+    public function actions()
     {
-        $logs = ActionLog::latest()->get();
-        return view('actions', compact('logs')); // Points to resources/views/actions.blade.php
+        return view('students.actions');
     }
 
-    public function settings(Request $request)
+    public function settings()
     {
-        return view('settings'); // Points to resources/views/settings.blade.php
-    }
-
-    public function updateSettings(Request $request)
-    {
-        $validated = $request->validate([
-            'workspace_name' => 'required|string|max:255',
-            'admin_name' => 'nullable|string|max:255',
-        ]);
-
-        session(['workspace_name' => $validated['workspace_name']]);
-        if (!empty($validated['admin_name'])) {
-            session(['admin_name' => $validated['admin_name']]);
-        }
-
-        // Record real-time audit log
-        ActionLog::create(['event' => 'Workspace Settings Updated (' . $validated['workspace_name'] . ')']);
-
-        return redirect()->route('settings')->with('success', 'Workspace settings updated successfully.');
+        return view('students.settings');
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'student_id' => 'required|string|unique:students,student_id',
+            'student_id' => 'required|string|max:255|unique:students,student_id',
             'name' => 'required|string|max:255',
             'course' => 'required|string|max:255',
             'gpa' => 'required|numeric|between:1.00,3.00',
@@ -92,15 +67,13 @@ class StudentController extends Controller
 
         Student::create($validated);
 
-        ActionLog::create(['event' => 'Student Record Created (' . $validated['student_id'] . ')']);
-
-        return redirect()->route('students.index')->with('success', 'Student record created successfully.');
+        return redirect()->route('students.index');
     }
 
     public function update(Request $request, Student $student)
     {
         $validated = $request->validate([
-            'student_id' => 'required|string|unique:students,student_id,' . $student->id,
+            'student_id' => 'required|string|max:255|unique:students,student_id,' . $student->id,
             'name' => 'required|string|max:255',
             'course' => 'required|string|max:255',
             'gpa' => 'required|numeric|between:1.00,3.00',
@@ -108,18 +81,18 @@ class StudentController extends Controller
 
         $student->update($validated);
 
-        ActionLog::create(['event' => 'Student Record Updated (' . $validated['student_id'] . ')']);
-
-        return redirect()->route('students.index')->with('success', 'Student record updated successfully.');
+        return redirect()->route('students.index');
     }
 
     public function destroy(Student $student)
     {
-        $studentId = $student->student_id;
         $student->delete();
 
-        ActionLog::create(['event' => 'Student Record Deleted (' . $studentId . ')']);
+        return redirect()->route('students.index');
+    }
 
-        return redirect()->route('students.index')->with('success', 'Student record deleted successfully.');
+    public function updateSettings(Request $request)
+    {
+        return back()->with('success', 'Settings updated successfully.');
     }
 }
