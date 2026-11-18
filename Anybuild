@@ -1,6 +1,12 @@
-Deploy scripts
-──────────────
-▸ start
-  $ php -S 0.0.0.0:8080 -t public
-▸ after_deploy
-  $ php artisan migrate --force
+[phases]
+  [phases.build]
+    commands = [
+      "composer install --optimize-autoloader --ignore-platform-reqs --no-scripts --no-interaction",
+      "npm install",
+      "npm run build"
+    ]
+  [phases.deploy]
+    commands = [
+      "php artisan migrate --force",
+      "php -S 0.0.0.0:8080 -t public"
+    ]
