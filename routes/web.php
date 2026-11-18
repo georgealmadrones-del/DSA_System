@@ -8,6 +8,21 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Artisan;
+
+// Auto-create SQLite database file and run migrations if missing in cloud/production
+try {
+    $dbPath = database_path('database.sqlite');
+    if (config('database.default') === 'sqlite' && !file_exists($dbPath)) {
+        if (!file_exists(dirname($dbPath))) {
+            mkdir(dirname($dbPath), 0755, true);
+        }
+        file_put_contents($dbPath, '');
+        Artisan::call('migrate', ['--force' => true]);
+    }
+} catch (\Exception $e) {
+    // Fail silently if directory isn't writable yet
+}
 
 // Automatically ensure the 'course' column exists in production to prevent SQLSTATE 1054 errors
 try {
