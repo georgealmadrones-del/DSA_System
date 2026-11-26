@@ -3,49 +3,54 @@
 use App\Http\Controllers\StudentController;
 use App\Models\Student;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 
-// Auto-create SQLite database file, run migrations, and seed default user safely
+// Ensure PostgreSQL/database tables and default admin user exist without breaking requests
 try {
-    $dbPath = database_path('database.sqlite');
-    if (config('database.default') === 'sqlite' && !file_exists($dbPath)) {
-        if (!file_exists(dirname($dbPath))) {
-            mkdir(dirname($dbPath), 0755, true);
-        }
-        file_put_contents($dbPath, '');
-        Artisan::call('migrate', ['--force' => true]);
-    }
+    $connection = config('database.default');
 
-    // Ensure default fallback user always exists so login never fails on container restarts
-    if (Schema::hasTable('users')) {
-        if (User::where('email', 'george@edu.core')->doesntExist()) {
-            User::create([
-                'workspace_name' => 'EduCore Workspace',
-                'admin_name' => 'George',
-                'name' => 'George',
-                'email' => 'george@edu.core',
-                'password' => '123456789', // Handled automatically by User model 'hashed' cast
-            ]);
+    if ($connection === 'sqlite') {
+        $dbPath = database_path('database.sqlite');
+        if (!file_exists($dbPath)) {
+            if (!file_exists(dirname($dbPath))) {
+                mkdir(dirname($dbPath), 0755, true);
+            }
+            file_put_contents($dbPath, '');
         }
     }
-} catch (\Exception $e) {
-    // Fail silently to prevent any system startup crash
-}
 
-// Automatically ensure the 'course' column exists in production to prevent SQLSTATE 1054 errors
-try {
+    // Run pending migrations automatically if core tables are missing
+    if (!Schema::hasTable('users') || !Schema::hasTable('sessions')) {
+        Artisan::call('migrate', [
+            '--force' => true,
+            '--no-interaction' => true,
+        ]);
+    }
+
+    // Ensure 'course' column exists on students table
     if (Schema::hasTable('students') && !Schema::hasColumn('students', 'course')) {
         Schema::table('students', function (Blueprint $table) {
-            $table->string('course')->nullable()->after('name');
+            $table->string('course')->nullable();
         });
     }
-} catch (\Exception $e) {
-    // Fail silently if database isn't fully ready yet
+
+    // Ensure default fallback user exists so login works after container restarts
+    if (Schema::hasTable('users') && User::where('email', 'george@edu.core')->doesntExist()) {
+        User::create([
+            'workspace_name' => 'EduCore Workspace',
+            'admin_name' => 'George',
+            'name' => 'George',
+            'email' => 'george@edu.core',
+            'password' => '123456789',
+        ]);
+    }
+} catch (\Throwable $e) {
+    report($e);
 }
 
 // Root URL -> Welcome / Landing Page (Real-time DB stats with error protection)
@@ -55,7 +60,7 @@ Route::get('/', function () {
         $averageGpa = Student::avg('gpa') ?? 0;
         $activeCoursesCount = Student::count() > 0 ? 1 : 0;
         $students = Student::latest()->take(5)->get();
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         $totalStudents = 0;
         $averageGpa = 0.00;
         $activeCoursesCount = 0;
@@ -88,10 +93,9 @@ Route::post('/auth/register', function (Request $request) {
         'admin_name' => $validated['admin_name'],
         'name' => $validated['admin_name'],
         'email' => $validated['email'],
-        'password' => $validated['password'], // Handled automatically by User model 'hashed' cast
+        'password' => $validated['password'],
     ]);
 
-    // Store user session data
     session([
         'user_id' => $user->id,
         'workspace_name' => $user->workspace_name,
@@ -114,7 +118,6 @@ Route::post('/auth/login', function (Request $request) {
         return back()->withErrors(['email' => 'Invalid email or password provided.']);
     }
 
-    // Bind session to this specific user account
     session([
         'user_id' => $user->id,
         'workspace_name' => $user->workspace_name,
@@ -137,6 +140,6 @@ Route::post('/settings', [StudentController::class, 'updateSettings'])->name('se
 
 // Handle Logout -> Redirects to Welcome page
 Route::post('/logout', function (Request $request) {
-    $request->session()->flush(); // Clears all session data
+    $request->session()->flush();
     return redirect()->route('welcome');
 })->name('logout');
