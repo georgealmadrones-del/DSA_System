@@ -157,9 +157,13 @@ class StudentController extends Controller
             'student_id.unique' => 'That Student ID already exists in your workspace.',
         ]);
 
-        $validated['user_id'] = $userId;
-
-        $student = Student::create($validated);
+        $student = Student::create([
+            'user_id' => $userId,
+            'student_id' => $validated['student_id'],
+            'name' => $validated['name'],
+            'course' => $validated['course'],
+            'gpa' => $validated['gpa'],
+        ]);
 
         $this->logAction("Added new student: {$student->name} ({$student->student_id})");
 
@@ -189,7 +193,13 @@ class StudentController extends Controller
             'student_id.unique' => 'That Student ID already exists in your workspace.',
         ]);
 
-        $ownedStudent->update($validated);
+        $ownedStudent->update([
+            'user_id' => $userId,
+            'student_id' => $validated['student_id'],
+            'name' => $validated['name'],
+            'course' => $validated['course'],
+            'gpa' => $validated['gpa'],
+        ]);
 
         $this->logAction("Updated student: {$ownedStudent->name} ({$ownedStudent->student_id})");
 

@@ -6,11 +6,12 @@ use App\Models\User;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
-// Ensure database tables, columns, and default fallback user exist safely
+// Ensure database tables, columns, indexes, and default fallback user exist safely
 try {
     $connection = config('database.default');
 
@@ -61,6 +62,15 @@ try {
                 Student::whereNull('user_id')->update(['user_id' => $defaultUser->id]);
             }
         }
+
+        // Scope student_id uniqueness per user_id so different accounts can use the same Student ID
+        if (Schema::hasColumn('students', 'user_id') && Schema::hasColumn('students', 'student_id')) {
+            if ($connection === 'pgsql') {
+                DB::statement('ALTER TABLE students DROP CONSTRAINT IF EXISTS students_student_id_unique');
+                DB::statement('DROP INDEX IF EXISTS students_student_id_unique');
+                DB::statement('CREATE UNIQUE INDEX IF NOT EXISTS students_user_id_student_id_unique ON students (user_id, student_id)');
+            }
+        }
     }
 } catch (\Throwable $e) {
     report($e);
@@ -70,16 +80,15 @@ try {
 Route::get('/', function () {
     try {
         $userId = session('user_id');
-
-        if ($userId) {
-            $query = Student::where('user_id', $userId);
-        } else {
-            $query = Student::query();
-        }
+        $query = $userId ? Student::where('user_id', $userId) : Student::query();
 
         $totalStudents = (clone $query)->count();
         $averageGpa = (clone $query)->avg('gpa') ?? 0;
-        $activeCoursesCount = $totalStudents > 0 ? 1 : 0;
+        $activeCoursesCount = (clone $query)
+            ->whereNotNull('course')
+            ->where('course', '!=', '')
+            ->distinct()
+            ->count('course');
         $students = (clone $query)->latest()->take(5)->get();
     } catch (\Throwable $e) {
         $totalStudents = 0;
