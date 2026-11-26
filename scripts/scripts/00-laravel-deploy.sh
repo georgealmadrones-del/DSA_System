@@ -10,3 +10,5 @@ php artisan route:cache
 
 echo "Clearing views..."
 php artisan view:clear
+
+php artisan migrate --force
