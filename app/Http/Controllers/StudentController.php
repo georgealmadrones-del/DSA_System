@@ -33,12 +33,35 @@ class StudentController extends Controller
         }
     }
 
+    private function computeActiveCoursesCount($userId): int
+    {
+        try {
+            return (int) Student::where('user_id', $userId)
+                ->whereNotNull('course')
+                ->where('course', '!=', '')
+                ->distinct()
+                ->count('course');
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+
+    private function resolveView(array $candidates, array $data = [])
+    {
+        foreach ($candidates as $viewName) {
+            if (view()->exists($viewName)) {
+                return view($viewName, $data);
+            }
+        }
+
+        return view('students.index', $data);
+    }
+
     public function index(Request $request)
     {
         $userId = $this->requireAuthenticatedUser();
         $query = Student::where('user_id', $userId);
 
-        // Search functionality
         if ($request->filled('search')) {
             $search = trim($request->input('search'));
             $query->where(function ($q) use ($search) {
@@ -48,7 +71,6 @@ class StudentController extends Controller
             });
         }
 
-        // Sorting functionality
         $sortBy = $request->input('sort_by', 'student_id');
         if ($sortBy === 'name') {
             $query->orderBy('name', 'asc');
@@ -62,17 +84,7 @@ class StudentController extends Controller
         $allUserStudents = Student::where('user_id', $userId);
         $totalStudents = (clone $allUserStudents)->count();
         $averageGpa = (clone $allUserStudents)->avg('gpa') ?? 0;
-
-        // Safe count for active courses in current user's workspace
-        try {
-            $activeCoursesCount = (clone $allUserStudents)
-                ->whereNotNull('course')
-                ->where('course', '!=', '')
-                ->distinct('course')
-                ->count('course');
-        } catch (\Throwable $e) {
-            $activeCoursesCount = 0;
-        }
+        $activeCoursesCount = $this->computeActiveCoursesCount($userId);
 
         return view('students.index', compact(
             'students',
@@ -87,39 +99,42 @@ class StudentController extends Controller
         $userId = $this->requireAuthenticatedUser();
         $students = Student::where('user_id', $userId)->latest()->get();
         $totalStudents = Student::where('user_id', $userId)->count();
+        $averageGpa = Student::where('user_id', $userId)->avg('gpa') ?? 0;
+        $activeCoursesCount = $this->computeActiveCoursesCount($userId);
 
-        if (view()->exists('students.directory')) {
-            return view('students.directory', compact('students', 'totalStudents'));
-        }
-
-        return view('students.index', compact('students', 'totalStudents'));
+        return $this->resolveView(
+            ['students.directory', 'directory'],
+            compact('students', 'totalStudents', 'averageGpa', 'activeCoursesCount')
+        );
     }
 
     public function actions()
     {
-        $this->requireAuthenticatedUser();
+        $userId = $this->requireAuthenticatedUser();
+        $students = Student::where('user_id', $userId)->latest()->get();
+        $totalStudents = Student::where('user_id', $userId)->count();
+        $averageGpa = Student::where('user_id', $userId)->avg('gpa') ?? 0;
+        $activeCoursesCount = $this->computeActiveCoursesCount($userId);
         $logs = class_exists(ActionLog::class) ? ActionLog::latest()->take(20)->get() : collect();
 
-        if (view()->exists('students.actions')) {
-            return view('students.actions', compact('logs'));
-        } elseif (view()->exists('actions')) {
-            return view('actions', compact('logs'));
-        }
-
-        return view('students.index', compact('logs'));
+        return $this->resolveView(
+            ['students.actions', 'actions'],
+            compact('students', 'totalStudents', 'averageGpa', 'activeCoursesCount', 'logs')
+        );
     }
 
     public function settings()
     {
-        $this->requireAuthenticatedUser();
+        $userId = $this->requireAuthenticatedUser();
+        $students = Student::where('user_id', $userId)->latest()->get();
+        $totalStudents = Student::where('user_id', $userId)->count();
+        $averageGpa = Student::where('user_id', $userId)->avg('gpa') ?? 0;
+        $activeCoursesCount = $this->computeActiveCoursesCount($userId);
 
-        if (view()->exists('students.settings')) {
-            return view('students.settings');
-        } elseif (view()->exists('settings')) {
-            return view('settings');
-        }
-
-        return view('students.index');
+        return $this->resolveView(
+            ['students.settings', 'settings'],
+            compact('students', 'totalStudents', 'averageGpa', 'activeCoursesCount')
+        );
     }
 
     public function store(Request $request)
