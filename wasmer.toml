@@ -1,0 +1,25 @@
+[package]
+name = "georgealmadrones-del/dsa-system"
+version = "0.1.0"
+description = "DSA System Laravel application on Wasmer"
+
+[dependencies]
+"phpix/phpix-83-32bit" = "=0.3.1"
+"wasmer/bash" = "=1.0.25"
+
+[[command]]
+name = "start"
+module = "phpix/phpix-83-32bit:phpix"
+runner = "https://webc.org/runner/wasi"
+
+[command.annotations.wasi]
+env = [
+  "APP_ENV=production",
+  "DB_CONNECTION=pgsql",
+  "DB_DATABASE=DSA_SYSTEM",
+  "SESSION_DRIVER=database",
+]
+
+[fs]
+"/app" = "/app"
+"/opt/assets" = "/opt/assets"
