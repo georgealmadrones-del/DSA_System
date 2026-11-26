@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
-// Ensure PostgreSQL/database tables and default admin user exist without breaking requests
+// Ensure database tables, columns, and default fallback user exist safely
 try {
     $connection = config('database.default');
 
@@ -32,13 +32,6 @@ try {
         ]);
     }
 
-    // Ensure 'course' column exists on students table
-    if (Schema::hasTable('students') && !Schema::hasColumn('students', 'course')) {
-        Schema::table('students', function (Blueprint $table) {
-            $table->string('course')->nullable();
-        });
-    }
-
     // Ensure default fallback user exists so login works after container restarts
     if (Schema::hasTable('users') && User::where('email', 'george@edu.core')->doesntExist()) {
         User::create([
@@ -49,17 +42,45 @@ try {
             'password' => '123456789',
         ]);
     }
+
+    // Ensure 'course' and 'user_id' columns exist on students table
+    if (Schema::hasTable('students')) {
+        if (!Schema::hasColumn('students', 'course')) {
+            Schema::table('students', function (Blueprint $table) {
+                $table->string('course')->nullable();
+            });
+        }
+
+        if (!Schema::hasColumn('students', 'user_id')) {
+            Schema::table('students', function (Blueprint $table) {
+                $table->unsignedBigInteger('user_id')->nullable()->index();
+            });
+
+            $defaultUser = User::where('email', 'george@edu.core')->first() ?? User::first();
+            if ($defaultUser) {
+                Student::whereNull('user_id')->update(['user_id' => $defaultUser->id]);
+            }
+        }
+    }
 } catch (\Throwable $e) {
     report($e);
 }
 
-// Root URL -> Welcome / Landing Page (Real-time DB stats with error protection)
+// Root URL -> Welcome / Landing Page
 Route::get('/', function () {
     try {
-        $totalStudents = Student::count();
-        $averageGpa = Student::avg('gpa') ?? 0;
-        $activeCoursesCount = Student::count() > 0 ? 1 : 0;
-        $students = Student::latest()->take(5)->get();
+        $userId = session('user_id');
+
+        if ($userId) {
+            $query = Student::where('user_id', $userId);
+        } else {
+            $query = Student::query();
+        }
+
+        $totalStudents = (clone $query)->count();
+        $averageGpa = (clone $query)->avg('gpa') ?? 0;
+        $activeCoursesCount = $totalStudents > 0 ? 1 : 0;
+        $students = (clone $query)->latest()->take(5)->get();
     } catch (\Throwable $e) {
         $totalStudents = 0;
         $averageGpa = 0.00;
