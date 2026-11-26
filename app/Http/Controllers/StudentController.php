@@ -30,11 +30,13 @@ class StudentController extends Controller
         return $userId;
     }
 
-    private function scopedStudentsQuery()
+    private function computeActiveCoursesCount($userId): int
     {
-        $userId = $this->requireAuthenticatedUser();
-
-        return Student::where('user_id', $userId);
+        return (int) Student::where('user_id', $userId)
+            ->whereNotNull('course')
+            ->where('course', '!=', '')
+            ->distinct()
+            ->count('course');
     }
 
     public function index(Request $request)
@@ -59,8 +61,14 @@ class StudentController extends Controller
         $allUserStudents = Student::where('user_id', $userId);
         $totalStudents = (clone $allUserStudents)->count();
         $averageGpa = (clone $allUserStudents)->avg('gpa') ?? 0;
+        $activeCoursesCount = $this->computeActiveCoursesCount($userId);
 
-        return view('students.index', compact('students', 'totalStudents', 'averageGpa'));
+        return view('students.index', compact(
+            'students',
+            'totalStudents',
+            'averageGpa',
+            'activeCoursesCount'
+        ));
     }
 
     public function directory(Request $request)
@@ -78,16 +86,18 @@ class StudentController extends Controller
         }
 
         $students = $query->latest()->get();
+        $activeCoursesCount = $this->computeActiveCoursesCount($userId);
 
-        return view('students.directory', compact('students'));
+        return view('students.directory', compact('students', 'activeCoursesCount'));
     }
 
     public function actions()
     {
         $userId = $this->requireAuthenticatedUser();
         $students = Student::where('user_id', $userId)->latest()->get();
+        $activeCoursesCount = $this->computeActiveCoursesCount($userId);
 
-        return view('students.actions', compact('students'));
+        return view('students.actions', compact('students', 'activeCoursesCount'));
     }
 
     public function settings()
@@ -112,7 +122,6 @@ class StudentController extends Controller
         $data = $validated;
         $data['user_id'] = $userId;
 
-        // Include any extra optional fields sent from the form if present in the table
         foreach ($request->except(['_token', '_method', 'user_id']) as $key => $value) {
             if (!array_key_exists($key, $data)) {
                 $data[$key] = $value;
@@ -128,7 +137,6 @@ class StudentController extends Controller
     {
         $userId = $this->requireAuthenticatedUser();
 
-        // Ensure the record belongs to the currently logged-in account
         $ownedStudent = Student::where('user_id', $userId)->findOrFail($student->id);
 
         $validated = $request->validate([
@@ -154,7 +162,6 @@ class StudentController extends Controller
     {
         $userId = $this->requireAuthenticatedUser();
 
-        // Ensure the record belongs to the currently logged-in account
         $ownedStudent = Student::where('user_id', $userId)->findOrFail($student->id);
         $ownedStudent->delete();
 
