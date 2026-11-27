@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCore SaaS — Student Records & Workspace Portal</title>
+    <title>EduCore Student Records SaaS</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -20,311 +21,324 @@
         }
     </script>
 </head>
-<body class="bg-[#FCFBF7] text-charcoal font-sans antialiased min-h-screen flex flex-col selection:bg-slateblue/20">
-    @php
-        $statStudents = $totalStudents ?? 0;
-        $statGpa = number_format((float) ($averageGpa ?? 0), 2);
-        $statCourses = $activeCoursesCount ?? 0;
-        $previewStudents = isset($students) ? collect($students)->take(5) : collect();
-    @endphp
+<body class="bg-[#FCFBF7] text-charcoal font-sans antialiased selection:bg-slateblue/20 overflow-x-hidden">
 
     <!-- Top Navigation Bar -->
-    <header class="bg-[#FFFEEB]/90 backdrop-blur-md border-b border-coolgrey/30 sticky top-0 z-30 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-xl bg-charcoal flex items-center justify-center text-white shadow-md">
-                    <div class="grid grid-cols-2 gap-0.5">
-                        <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                        <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                        <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                        <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                    </div>
+    <header class="w-full bg-white/80 backdrop-blur-md border-b border-coolgrey/20 h-20 flex items-center justify-between px-10 sticky top-0 z-50 shadow-sm">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-charcoal flex items-center justify-center text-white shadow-md">
+                <div class="grid grid-cols-2 gap-0.5">
+                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
                 </div>
-                <span class="font-extrabold text-sm tracking-tight text-charcoal">EduCore SaaS</span>
             </div>
+            <span class="font-extrabold text-base tracking-tight text-charcoal">EduCore SaaS</span>
+        </div>
 
-            <nav class="hidden md:flex items-center space-x-6 text-xs font-bold text-slateblue">
-                <a href="#dashboard-preview" class="hover:text-charcoal transition">Dashboard</a>
-                <a href="#directory-preview" class="hover:text-charcoal transition">Directory</a>
-                <button type="button" onclick="openBillingModal('Growth')" class="hover:text-charcoal transition">Billing</button>
-                <a href="#questions-section" class="hover:text-charcoal transition">Q&amp;A</a>
-            </nav>
+        <nav class="hidden md:flex items-center space-x-8 text-xs font-semibold text-slateblue">
+            <a href="#features" class="hover:text-charcoal transition">Features</a>
+            <a href="#pricing" class="hover:text-charcoal transition">Pricing</a>
+            <a href="#faq" class="hover:text-charcoal transition">FAQ</a>
+        </nav>
 
-            <div class="flex items-center space-x-2.5">
-                <a href="{{ route('login') }}" class="px-4 py-2 bg-white border border-coolgrey/40 text-charcoal rounded-xl text-xs font-bold hover:bg-gray-50 transition shadow-sm">
-                    Log In
-                </a>
-                <a href="{{ route('register') }}" class="px-4 py-2 bg-charcoal text-white rounded-xl text-xs font-bold hover:bg-charcoal/90 transition shadow-md">
-                    Get Started
-                </a>
-            </div>
+        <div class="flex items-center space-x-4">
+            <a href="{{ route('login') }}" class="px-4 py-2 text-xs font-bold text-charcoal hover:bg-gray-100 rounded-xl transition">Log in</a>
+            <a href="{{ route('register') }}" class="px-5 py-2.5 bg-charcoal text-white text-xs font-bold rounded-xl shadow-md hover:bg-charcoal/90 transition transform hover:-translate-y-0.5">Get started →</a>
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 py-8 space-y-8">
-        <!-- Hero / Overview Banner -->
-        <div class="bg-white rounded-3xl border border-coolgrey/20 shadow-md p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-                <p id="welcome-live-clock" class="text-[10px] font-extrabold uppercase tracking-widest text-slateblue mb-1">LIVE WORKSPACE OVERVIEW</p>
-                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-charcoal">Multi-Tenant Student Records &amp; Academic Analytics</h1>
-                <p class="text-xs text-slateblue mt-1.5 max-w-2xl">
-                    Manage student enrollments, configurable GPA scales, prefix-locked student IDs, and audit trails in one workspace.
-                </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-3 shrink-0">
-                <button type="button" onclick="openBillingModal('Pro')" class="px-4 py-2.5 bg-gray-100 text-charcoal rounded-2xl text-xs font-bold hover:bg-gray-200 transition">
-                    Billing Plans
-                </button>
-                <a href="{{ route('students.index') }}" class="px-5 py-2.5 bg-charcoal text-white rounded-2xl text-xs font-bold hover:bg-charcoal/90 transition shadow-md">
-                    Open Workspace
-                </a>
-            </div>
+    <!-- Hero Section -->
+    <section class="max-w-5xl mx-auto px-6 pt-20 pb-12 text-center space-y-8">
+        <!-- Top Pill Badge -->
+        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-white border border-coolgrey/30 rounded-full shadow-sm text-xs font-semibold text-charcoal animate-bounce">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Student management, thoughtfully simplified</span>
         </div>
 
-        <!-- Static Dashboard Stat Cards (Matching Admin Dashboard Style) -->
-        <section id="dashboard-preview" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-3xl border border-coolgrey/20 shadow-md flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-slateblue uppercase tracking-wider">Total Students</span>
-                        <span class="w-8 h-8 rounded-xl bg-gray-50 border border-coolgrey/30 flex items-center justify-center text-slateblue font-bold text-xs">#</span>
-                    </div>
-                    <div class="flex items-baseline space-x-2 mt-3">
-                        <span class="text-3xl font-extrabold text-charcoal">{{ $statStudents }}</span>
-                        <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg font-bold">Live</span>
-                    </div>
-                    <p class="text-[11px] text-slateblue mt-1">workspace records</p>
+        <!-- Main Headline with Group 6 Callout -->
+        <div class="space-y-3">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-charcoal tracking-tight leading-tight">
+                Simplify student records.<br>Elevate every outcome.
+            </h1>
+            <p class="text-xs md:text-sm font-bold text-slateblue tracking-widest uppercase pt-1 bg-slateblue/10 inline-block px-3 py-1 rounded-full">created by Group 6</p>
+        </div>
+
+        <p class="text-sm md:text-base text-slateblue max-w-2xl mx-auto leading-relaxed">
+            One intuitive workspace to organize student data, track academic performance, and help your institution make smarter decisions.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <a href="{{ route('register') }}" class="w-full sm:w-auto px-8 py-4 bg-charcoal text-white text-xs font-bold rounded-2xl shadow-xl hover:bg-charcoal/90 transition transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+                <span>Start managing free</span>
+                <span>→</span>
+            </a>
+            <a href="#features" class="w-full sm:w-auto px-8 py-4 bg-white text-charcoal border border-coolgrey/30 text-xs font-bold rounded-2xl shadow-sm hover:bg-gray-50 transition">
+                Explore live demo
+            </a>
+        </div>
+    </section>
+
+    <!-- Interactive Live Database Mockup Showcase -->
+    <section class="max-w-6xl mx-auto px-6 pb-24">
+        <div class="bg-gradient-to-b from-[#FFFEEB] to-white rounded-3xl border border-coolgrey/30 p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            
+            <!-- Interactive Mockup Navigation Tabs -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-coolgrey/20">
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-rose-400"></div>
+                    <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                    <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+                    <span class="text-xs font-mono text-slateblue ml-2">educore.app/workspace/dashboard (Live DB Connected)</span>
+                </div>
+                <div class="flex items-center space-x-2 bg-gray-100 p-1 rounded-xl">
+                    <button onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-charcoal shadow-sm transition">Dashboard View</button>
+                    <button onclick="switchTab('directory')" id="tab-directory" class="px-4 py-1.5 rounded-lg text-xs font-bold text-slateblue hover:text-charcoal transition">Directory Table</button>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-3xl border border-coolgrey/20 shadow-md flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-slateblue uppercase tracking-wider">Average GPA</span>
-                        <span class="w-8 h-8 rounded-xl bg-gray-50 border border-coolgrey/30 flex items-center justify-center text-slateblue font-bold text-xs">GPA</span>
+            <!-- Tab Content 1: Live Database Analytics -->
+            <div id="content-dashboard" class="pt-6 space-y-6 transition-all duration-300">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-coolgrey/20 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase text-slateblue">Total Enrolled (Live DB)</p>
+                        <p class="text-3xl font-extrabold text-charcoal mt-1">{{ $totalStudents }}</p>
+                        <span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold mt-2 inline-block">Synced from MySQL</span>
                     </div>
-                    <div class="flex items-baseline space-x-2 mt-3">
-                        <span class="text-3xl font-extrabold text-charcoal">{{ $statGpa }}</span>
-                        <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg font-bold">Live</span>
+                    <div class="bg-white p-5 rounded-2xl border border-coolgrey/20 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase text-slateblue">Average Cohort GPA</p>
+                        <p class="text-3xl font-extrabold text-charcoal mt-1">{{ number_format($averageGpa, 2) }}</p>
+                        <span class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold mt-2 inline-block">Calculated Mean</span>
                     </div>
-                    <p class="text-[11px] text-slateblue mt-1">calculated mean</p>
+                    <div class="bg-white p-5 rounded-2xl border border-coolgrey/20 shadow-sm">
+                        <p class="text-[10px] font-bold uppercase text-slateblue">Active Departments</p>
+                        <p class="text-3xl font-extrabold text-charcoal mt-1">{{ $activeCoursesCount }}</p>
+                        <span class="text-[10px] text-slateblue bg-gray-100 px-2 py-0.5 rounded font-bold mt-2 inline-block">Unique Courses</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-coolgrey/20 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-charcoal">Real-Time Audit Telemetry Active</p>
+                        <p class="text-[11px] text-slateblue">Displaying live data directly from your EduCore MySQL database.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-xl animate-pulse">Live DB Connected</span>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-3xl border border-coolgrey/20 shadow-md flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-[11px] font-bold text-slateblue uppercase tracking-wider">Active Courses</span>
-                        <span class="w-8 h-8 rounded-xl bg-gray-50 border border-coolgrey/30 flex items-center justify-center text-slateblue font-bold text-xs">CRS</span>
+            <!-- Tab Content 2: Live Database Directory Table -->
+            <div id="content-directory" class="pt-6 hidden space-y-4 transition-all duration-300">
+                <div class="bg-white rounded-2xl border border-coolgrey/20 shadow-sm overflow-hidden">
+                    <div class="p-4 bg-gray-50 border-b border-coolgrey/20 flex justify-between items-center text-xs font-bold text-slateblue uppercase">
+                        <span>Student ID & Name</span>
+                        <span>Course</span>
+                        <span>GPA</span>
+                        <span>Status</span>
                     </div>
-                    <div class="flex items-baseline space-x-2 mt-3">
-                        <span class="text-3xl font-extrabold text-charcoal">{{ $statCourses }}</span>
-                        <span class="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg font-bold">Live</span>
-                    </div>
-                    <p class="text-[11px] text-slateblue mt-1">registered courses</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Static Directory Table (Matching Admin Dashboard Style) -->
-        <section id="directory-preview" class="bg-white rounded-3xl border border-coolgrey/20 shadow-md overflow-hidden">
-            <div class="p-6 border-b border-coolgrey/20 flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-bold text-charcoal">Student Directory Snapshot</h2>
-                    <p class="text-xs text-slateblue mt-0.5">Static overview matching the workspace table structure.</p>
-                </div>
-                <a href="{{ route('students.directory') }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-charcoal rounded-xl text-xs font-bold transition">
-                    Full Directory
-                </a>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50/70 border-b border-coolgrey/20 text-[10px] font-bold text-slateblue uppercase tracking-wider">
-                            <th class="py-3.5 px-4">Student ID</th>
-                            <th class="py-3.5 px-4">Full Name</th>
-                            <th class="py-3.5 px-4">Course</th>
-                            <th class="py-3.5 px-4">GPA</th>
-                            <th class="py-3.5 px-4">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-coolgrey/10 text-xs">
-                        @forelse ($previewStudents as $student)
-                            <tr class="hover:bg-gray-50/50 transition">
-                                <td class="py-4 px-4 font-mono font-semibold text-charcoal">{{ $student->student_id }}</td>
-                                <td class="py-4 px-4 font-bold text-charcoal">{{ $student->name }}</td>
-                                <td class="py-4 px-4 text-slateblue font-medium">{{ $student->course }}</td>
-                                <td class="py-4 px-4 font-bold text-charcoal">{{ number_format((float) $student->gpa, 2) }}</td>
-                                <td class="py-4 px-4">
-                                    <span class="inline-flex items-center text-xs text-emerald-700 font-medium bg-emerald-50 px-2.5 py-0.5 rounded-full">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Active
-                                    </span>
-                                </td>
-                            </tr>
+                    <div class="divide-y divide-gray-100 text-xs">
+                        @forelse($students as $student)
+                            <div class="p-4 flex justify-between items-center hover:bg-gray-50">
+                                <span class="font-bold text-charcoal">{{ $student->student_id }} - {{ $student->name }}</span>
+                                <span class="text-slateblue font-medium">{{ $student->course ?? 'BSIT' }}</span>
+                                <span class="font-extrabold">{{ number_format($student->gpa, 2) }}</span>
+                                <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 rounded-full font-bold">Active</span>
+                            </div>
                         @empty
-                            <tr>
-                                <td colspan="5" class="py-8 text-center text-slateblue">Sign in to view or add student records in your workspace.</td>
-                            </tr>
+                            <div class="p-6 text-center text-slateblue">No records found in database.</div>
                         @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Real-Time / Filterable Q&A Section -->
-        <section id="questions-section" class="bg-white rounded-3xl border border-coolgrey/20 shadow-md p-6 md:p-8 space-y-5">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-slateblue">Live Knowledge Base</p>
-                    <h2 class="text-base font-bold text-charcoal mt-0.5">Frequently Asked Questions</h2>
-                </div>
-                <input type="text" id="faqFilterInput" oninput="filterFaqItems()" placeholder="Filter questions in real time..." class="px-3.5 py-2 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs shadow-inner focus:outline-none focus:ring-2 focus:ring-slateblue/50 w-full sm:w-72">
-            </div>
-
-            <div id="faqList" class="space-y-3">
-                <div class="faq-item p-4 rounded-2xl bg-gray-50 border border-coolgrey/20" data-faq="how does multi tenant workspace isolation work">
-                    <button type="button" onclick="toggleFaqAnswer(this)" class="w-full text-left flex items-center justify-between text-xs font-bold text-charcoal">
-                        <span>How does workspace isolation work for student records?</span>
-                        <span class="text-slateblue ml-2">+</span>
-                    </button>
-                    <p class="faq-answer mt-2 text-xs text-slateblue">
-                        Each workspace scopes student rows, settings, and audit logs to its own workspace owner so records stay separated across accounts.
-                    </p>
-                </div>
-
-                <div class="faq-item p-4 rounded-2xl bg-gray-50 border border-coolgrey/20" data-faq="how do gpa scale limits and prefixes work">
-                    <button type="button" onclick="toggleFaqAnswer(this)" class="w-full text-left flex items-center justify-between text-xs font-bold text-charcoal">
-                        <span>How do GPA scale limits and student ID prefixes work?</span>
-                        <span class="text-slateblue ml-2">+</span>
-                    </button>
-                    <p class="faq-answer mt-2 text-xs text-slateblue">
-                        Admins configure the GPA scale (`3.00`, `4.00`, or `5.00`) and default prefix in Settings. New records auto-increment using the active prefix, and non-numeric symbols (except `.`) are stripped from GPA inputs.
-                    </p>
-                </div>
-
-                <div class="faq-item p-4 rounded-2xl bg-gray-50 border border-coolgrey/20" data-faq="can i export student data to csv and track audit logs">
-                    <button type="button" onclick="toggleFaqAnswer(this)" class="w-full text-left flex items-center justify-between text-xs font-bold text-charcoal">
-                        <span>Can I export student records to CSV and view audit logs?</span>
-                        <span class="text-slateblue ml-2">+</span>
-                    </button>
-                    <p class="faq-answer mt-2 text-xs text-slateblue">
-                        Yes. You can export your workspace student records as a CSV from Settings and review create, update, delete, and settings events in the Audit Logs.
-                    </p>
-                </div>
-
-                <div class="faq-item p-4 rounded-2xl bg-gray-50 border border-coolgrey/20" data-faq="how do billing plans and upgrades work">
-                    <button type="button" onclick="toggleFaqAnswer(this)" class="w-full text-left flex items-center justify-between text-xs font-bold text-charcoal">
-                        <span>How do billing plans work without leaving the page?</span>
-                        <span class="text-slateblue ml-2">+</span>
-                    </button>
-                    <p class="faq-answer mt-2 text-xs text-slateblue">
-                        Click Billing or Billing Plans anywhere on this page to compare Starter, Growth, and Campus plans and select a tier directly in the Billing modal without being forced to `/register`.
-                    </p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Interactive Billing Modal (Does NOT redirect to /register) -->
-    <div id="billingModal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border border-coolgrey/20 space-y-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-slateblue">Workspace Billing</p>
-                    <h3 class="text-lg font-extrabold text-charcoal">Select a Plan</h3>
-                </div>
-                <button type="button" onclick="closeBillingModal()" class="text-gray-400 hover:text-gray-600 text-sm font-bold">X</button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                <div class="p-4 rounded-2xl border border-coolgrey/30 bg-gray-50 space-y-2">
-                    <p class="font-extrabold text-charcoal">Starter</p>
-                    <p class="text-xl font-extrabold text-charcoal">Free</p>
-                    <p class="text-[11px] text-slateblue">Up to 250 student records, CSV export, and audit logs.</p>
-                    <button type="button" onclick="selectBillingPlan('Starter (Free)')" class="w-full py-2 bg-white border border-coolgrey/40 rounded-xl font-bold text-charcoal hover:bg-gray-100 transition">
-                        Select Starter
-                    </button>
-                </div>
-
-                <div class="p-4 rounded-2xl border-2 border-charcoal bg-white space-y-2 shadow-sm">
-                    <p class="font-extrabold text-charcoal">Growth</p>
-                    <p class="text-xl font-extrabold text-charcoal">$19<span class="text-xs font-medium text-slateblue">/mo</span></p>
-                    <p class="text-[11px] text-slateblue">Unlimited records, custom GPA scales, and full telemetry.</p>
-                    <button type="button" onclick="selectBillingPlan('Growth ($19/mo)')" class="w-full py-2 bg-charcoal text-white rounded-xl font-bold hover:bg-charcoal/90 transition">
-                        Select Growth
-                    </button>
-                </div>
-
-                <div class="p-4 rounded-2xl border border-coolgrey/30 bg-gray-50 space-y-2">
-                    <p class="font-extrabold text-charcoal">Campus</p>
-                    <p class="text-xl font-extrabold text-charcoal">$49<span class="text-xs font-medium text-slateblue">/mo</span></p>
-                    <p class="text-[11px] text-slateblue">Multi-department workspaces, priority support, and exports.</p>
-                    <button type="button" onclick="selectBillingPlan('Campus ($49/mo)')" class="w-full py-2 bg-white border border-coolgrey/40 rounded-xl font-bold text-charcoal hover:bg-gray-100 transition">
-                        Select Campus
-                    </button>
+                    </div>
                 </div>
             </div>
 
-            <div id="billingConfirmation" class="hidden p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800"></div>
+        </div>
+    </section>
 
-            <div class="flex justify-end">
-                <button type="button" onclick="closeBillingModal()" class="px-4 py-2 bg-gray-100 text-charcoal rounded-xl text-xs font-bold">Close</button>
+    <!-- Features Section Grid (With Professional Vector SVGs) -->
+    <section id="features" class="max-w-6xl mx-auto px-6 py-16 space-y-12 border-t border-coolgrey/20">
+        <div class="text-center space-y-3">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slateblue">Everything you need</span>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-charcoal">Less admin. More impact.</h2>
+            <p class="text-xs text-slateblue max-w-xl mx-auto">Purpose-built tools that turn complex student record management into a calm, connected experience.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-3xl border border-coolgrey/20 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 space-y-3">
+                <div class="w-10 h-10 rounded-2xl bg-slateblue/10 text-charcoal flex items-center justify-center">
+                    <svg class="w-5 h-5 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <h3 class="text-sm font-bold text-charcoal">Instant CRUD Management</h3>
+                <p class="text-xs text-slateblue leading-relaxed">Add, update, and manage student records in moments with smart validation that keeps your data clean.</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-coolgrey/20 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 space-y-3">
+                <div class="w-10 h-10 rounded-2xl bg-slateblue/10 text-charcoal flex items-center justify-center">
+                    <svg class="w-5 h-5 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                <h3 class="text-sm font-bold text-charcoal">Interactive Grading Statistics</h3>
+                <p class="text-xs text-slateblue leading-relaxed">Turn grades into clear, visual insights that reveal trends and support better academic outcomes.</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-coolgrey/20 shadow-md hover:shadow-xl transition transform hover:-translate-y-1 space-y-3">
+                <div class="w-10 h-10 rounded-2xl bg-slateblue/10 text-charcoal flex items-center justify-center">
+                    <svg class="w-5 h-5 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <h3 class="text-sm font-bold text-charcoal">Advanced Search & Sorting</h3>
+                <p class="text-xs text-slateblue leading-relaxed">Find any record fast, combine multiple criteria, and sort your data exactly the way you need it.</p>
             </div>
         </div>
-    </div>
+    </section>
 
+    <!-- Pricing Section (₱500 / month) -->
+    <section id="pricing" class="max-w-5xl mx-auto px-6 py-16 space-y-10">
+        <div class="text-center space-y-3">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slateblue">Transparent Pricing</span>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-charcoal">Simple plans for institutions of all sizes</h2>
+            
+            <div class="inline-flex items-center space-x-3 bg-gray-100 p-1.5 rounded-2xl mt-4">
+                <button onclick="setPricing('monthly')" id="btn-monthly" class="px-4 py-2 rounded-xl text-xs font-bold bg-white text-charcoal shadow-sm transition">Monthly Billing</button>
+                <button onclick="setPricing('annual')" id="btn-annual" class="px-4 py-2 rounded-xl text-xs font-bold text-slateblue hover:text-charcoal transition">Annual Billing <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full ml-1">Save 20%</span></button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            <div class="bg-white p-8 rounded-3xl border border-coolgrey/20 shadow-md space-y-6 flex flex-col justify-between">
+                <div class="space-y-4">
+                    <h3 class="text-sm font-extrabold text-charcoal uppercase tracking-wider">Department Workspace</h3>
+                    <div class="flex items-baseline space-x-1">
+                        <span class="text-4xl font-extrabold text-charcoal price-starter">₱0</span>
+                        <span class="text-xs text-slateblue billing-cycle">/ month</span>
+                    </div>
+                    <p class="text-xs text-slateblue">Perfect for individual college departments and small rosters.</p>
+                </div>
+                <a href="{{ route('register') }}" class="w-full py-3 bg-gray-100 hover:bg-gray-200 text-charcoal rounded-xl text-xs font-bold transition text-center block">Get Started Free</a>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border-2 border-charcoal shadow-xl space-y-6 flex flex-col justify-between relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-charcoal text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-widest">Most Popular</div>
+                <div class="space-y-4">
+                    <h3 class="text-sm font-extrabold text-charcoal uppercase tracking-wider">Full Institution SaaS</h3>
+                    <div class="flex items-baseline space-x-1">
+                        <span class="text-4xl font-extrabold text-charcoal price-pro">₱500</span>
+                        <span class="text-xs text-slateblue billing-cycle">/ month</span>
+                    </div>
+                    <p class="text-xs text-slateblue">For entire academies and universities requiring multi-user access.</p>
+                </div>
+                <a href="{{ route('register') }}" class="w-full py-3 bg-charcoal hover:bg-charcoal/90 text-white rounded-xl text-xs font-bold transition text-center block shadow-md">Deploy Workspace</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive FAQ Section -->
+    <section id="faq" class="max-w-4xl mx-auto px-6 py-16 space-y-8">
+        <div class="text-center space-y-2">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slateblue">Got Questions?</span>
+            <h2 class="text-2xl font-extrabold text-charcoal">Frequently Asked Questions</h2>
+        </div>
+
+        <div class="space-y-4">
+            <div class="bg-white rounded-2xl border border-coolgrey/20 shadow-sm overflow-hidden">
+                <button onclick="toggleFaq(1)" class="w-full p-5 text-left flex justify-between items-center text-xs font-bold text-charcoal hover:bg-gray-50 transition">
+                    <span>How does the workspace session persistence work?</span>
+                    <span id="icon-1" class="text-lg font-bold transition-transform">+</span>
+                </button>
+                <div id="faq-1" class="hidden p-5 pt-0 text-xs text-slateblue leading-relaxed border-t border-gray-100">
+                    EduCore securely stores your workspace name and preferences in active server sessions, allowing real-time branding updates across all your dashboard views instantly.
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-coolgrey/20 shadow-sm overflow-hidden">
+                <button onclick="toggleFaq(2)" class="w-full p-5 text-left flex justify-between items-center text-xs font-bold text-charcoal hover:bg-gray-50 transition">
+                    <span>Can I export student data into reports?</span>
+                    <span id="icon-2" class="text-lg font-bold transition-transform">+</span>
+                </button>
+                <div id="faq-2" class="hidden p-5 pt-0 text-xs text-slateblue leading-relaxed border-t border-gray-100">
+                    Yes! You can export filtered student directories and complete audit log trails directly as formatted CSV files from the settings panel.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom Call to Action Banner -->
+    <section class="max-w-6xl mx-auto px-6 py-12">
+        <div class="bg-[#2A2A2A] text-white rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+            <div class="space-y-2 text-center md:text-left">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-coolgrey">Ready when you are</p>
+                <h3 class="text-xl md:text-2xl font-extrabold">Give your team time back.</h3>
+                <p class="text-xs text-coolgrey/80 max-w-md">Join education teams simplifying their student operations with EduCore.</p>
+            </div>
+            <a href="{{ route('register') }}" class="px-8 py-4 bg-ivory text-charcoal text-xs font-bold rounded-2xl shadow-lg hover:bg-white transition transform hover:-translate-y-0.5 shrink-0">
+                Get started for free →
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="max-w-6xl mx-auto px-6 py-8 border-t border-coolgrey/20 flex flex-col md:flex-row items-center justify-between text-xs text-slateblue gap-4">
+        <div class="flex items-center space-x-2">
+            <div class="w-6 h-6 rounded-lg bg-charcoal flex items-center justify-center text-white text-[9px] font-bold">EA</div>
+            <span class="font-bold text-charcoal">EduCore SaaS</span>
+        </div>
+        <p>&copy; 2026 EduCore. Built for better education by Group 6.</p>
+        <div class="flex items-center space-x-6">
+            <a href="#" class="hover:text-charcoal transition">Privacy</a>
+            <a href="#" class="hover:text-charcoal transition">Terms</a>
+            <a href="#" class="hover:text-charcoal transition">Contact</a>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts -->
     <script>
-        function openBillingModal(planName) {
-            document.getElementById('billingModal').classList.remove('hidden');
-        }
+        function switchTab(tab) {
+            const dashContent = document.getElementById('content-dashboard');
+            const dirContent = document.getElementById('content-directory');
+            const dashBtn = document.getElementById('tab-dashboard');
+            const dirBtn = document.getElementById('tab-directory');
 
-        function closeBillingModal() {
-            document.getElementById('billingModal').classList.add('hidden');
-        }
-
-        function selectBillingPlan(label) {
-            const box = document.getElementById('billingConfirmation');
-            if (box) {
-                box.textContent = `Selected plan: ${label}. Billing quote ready for your workspace.`;
-                box.classList.remove('hidden');
+            if(tab === 'dashboard') {
+                dashContent.classList.remove('hidden');
+                dirContent.classList.add('hidden');
+                dashBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-charcoal shadow-sm transition";
+                dirBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold text-slateblue hover:text-charcoal transition";
+            } else {
+                dirContent.classList.remove('hidden');
+                dashContent.classList.add('hidden');
+                dirBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-charcoal shadow-sm transition";
+                dashBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold text-slateblue hover:text-charcoal transition";
             }
         }
 
-        function toggleFaqAnswer(button) {
-            const item = button.closest('.faq-item');
-            const answer = item ? item.querySelector('.faq-answer') : null;
-            if (answer) {
-                answer.classList.toggle('hidden');
+        function setPricing(plan) {
+            const monthlyBtn = document.getElementById('btn-monthly');
+            const annualBtn = document.getElementById('btn-annual');
+            const priceStarter = document.querySelector('.price-starter');
+            const pricePro = document.querySelector('.price-pro');
+            const cycles = document.querySelectorAll('.billing-cycle');
+
+            if(plan === 'annual') {
+                annualBtn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-white text-charcoal shadow-sm transition";
+                monthlyBtn.className = "px-4 py-2 rounded-xl text-xs font-bold text-slateblue hover:text-charcoal transition";
+                priceStarter.innerText = "₱0";
+                pricePro.innerText = "₱400";
+                cycles.forEach(el => el.innerText = "/ month (billed annually)");
+            } else {
+                monthlyBtn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-white text-charcoal shadow-sm transition";
+                annualBtn.className = "px-4 py-2 rounded-xl text-xs font-bold text-slateblue hover:text-charcoal transition";
+                priceStarter.innerText = "₱0";
+                pricePro.innerText = "₱500";
+                cycles.forEach(el => el.innerText = "/ month");
             }
         }
 
-        function filterFaqItems() {
-            const term = String(document.getElementById('faqFilterInput')?.value || '').trim().toLowerCase();
-            const items = document.querySelectorAll('.faq-item');
-            items.forEach((item) => {
-                const text = String((item.getAttribute('data-faq') || '') + ' ' + item.textContent).toLowerCase();
-                item.classList.toggle('hidden', term !== '' && !text.includes(term));
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const clockEl = document.getElementById('welcome-live-clock');
-            if (clockEl) {
-                const updateClock = () => {
-                    const now = new Date();
-                    clockEl.textContent = now.toLocaleString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                    }).toUpperCase();
-                };
-                updateClock();
-                setInterval(updateClock, 1000);
+        function toggleFaq(id) {
+            const content = document.getElementById(`faq-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            if(content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.innerText = "−";
+            } else {
+                content.classList.add('hidden');
+                icon.innerText = "+";
             }
-        });
+        }
     </script>
 </body>
 </html>
