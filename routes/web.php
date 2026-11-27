@@ -104,6 +104,17 @@ try {
             $table->timestamps();
         });
     }
+
+    if (!Schema::hasTable('password_reset_codes')) {
+        Schema::create('password_reset_codes', function (Blueprint $table) {
+            $table->id();
+            $table->string('email')->index();
+            $table->string('code_hash');
+            $table->unsignedTinyInteger('attempts')->default(0);
+            $table->timestamp('expires_at');
+            $table->timestamps();
+        });
+    }
 } catch (\Throwable $e) {
     report($e);
 }
@@ -304,13 +315,73 @@ Route::post('/auth/login', function (Request $request) use ($eduCoreEmailRule) {
     return $response;
 })->name('auth.login.store');
 
-// Handle Forgot Password Reset for @edu.core accounts
+// Step 1: Generate a 6-digit verification code for an @edu.core account
+Route::post('/auth/forgot-password/request', function (Request $request) use ($eduCoreEmailRule) {
+    $validated = $request->validate([
+        'reset_email' => $eduCoreEmailRule,
+    ], [
+        'reset_email.regex' => 'Only @edu.core email addresses can request a password reset.',
+    ]);
+
+    $normalizedEmail = Str::lower(trim($validated['reset_email']));
+    $throttleKey = 'reset-code:' . sha1($normalizedEmail . '|' . $request->ip());
+
+    if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+        $seconds = RateLimiter::availableIn($throttleKey);
+        return back()
+            ->withInput($request->only('reset_email'))
+            ->with('open_forgot_modal', true)
+            ->with('reset_step', 'verify')
+            ->withErrors(['reset_email' => "Too many code requests. Try again in {$seconds} seconds."]);
+    }
+
+    RateLimiter::hit($throttleKey, 300);
+
+    $user = User::whereRaw('LOWER(email) = ?', [$normalizedEmail])->first();
+    $code = (string) random_int(100000, 999999);
+
+    if ($user && Schema::hasTable('password_reset_codes')) {
+        DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
+        DB::table('password_reset_codes')->insert([
+            'email' => $normalizedEmail,
+            'code_hash' => hash('sha256', $code),
+            'attempts' => 0,
+            'expires_at' => now()->addMinutes(15),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $settings = WorkspaceSetting::where('user_id', $user->id)->first();
+        if (Schema::hasTable('audit_logs') && (!$settings || $settings->audit_telemetry)) {
+            AuditLog::create([
+                'user_id' => $user->id,
+                'actor_name' => $user->admin_name ?? $user->name,
+                'event' => 'Requested password reset verification code',
+                'meta' => $user->email,
+            ]);
+        }
+    }
+
+    // Without SMTP configured, show the generated code on screen for testing/verification;
+    // when SMTP is wired up later, send $code via Mail::raw(...) instead of flashing it.
+    return back()
+        ->withInput(['reset_email' => $normalizedEmail])
+        ->with('open_forgot_modal', true)
+        ->with('reset_step', 'verify')
+        ->with('reset_code_preview', $user ? $code : null)
+        ->with('reset_notice', 'If ' . $normalizedEmail . ' is registered, a 6-digit verification code valid for 15 minutes has been generated.');
+})->name('auth.password.code');
+
+// Step 2: Verify the 6-digit code and update the password
 Route::post('/auth/forgot-password', function (Request $request) use ($eduCoreEmailRule) {
     $validated = $request->validate([
         'reset_email' => $eduCoreEmailRule,
+        'reset_code' => 'required|digits:6',
         'new_password' => 'required|string|min:6|max:128|confirmed',
     ], [
         'reset_email.regex' => 'Only @edu.core email addresses can reset passwords.',
+        'reset_code.required' => 'Enter the 6-digit verification code.',
+        'reset_code.digits' => 'Verification code must be exactly 6 digits.',
         'new_password.min' => 'New password must be at least 6 characters.',
         'new_password.max' => 'New password must not exceed 128 characters.',
         'new_password.confirmed' => 'New password confirmation does not match.',
@@ -318,13 +389,52 @@ Route::post('/auth/forgot-password', function (Request $request) use ($eduCoreEm
 
     $normalizedEmail = Str::lower(trim($validated['reset_email']));
     $user = User::whereRaw('LOWER(email) = ?', [$normalizedEmail])->first();
+    $tokenRow = Schema::hasTable('password_reset_codes')
+        ? DB::table('password_reset_codes')->where('email', $normalizedEmail)->first()
+        : null;
 
-    if (!$user) {
+    if (!$user || !$tokenRow) {
         return back()
             ->withInput($request->only('reset_email'))
             ->with('open_forgot_modal', true)
-            ->withErrors(['reset_email' => 'No account found with that @edu.core email address.']);
+            ->with('reset_step', 'request')
+            ->withErrors(['reset_code' => 'Invalid or expired verification code. Request a new code first.']);
     }
+
+    if (now()->greaterThan($tokenRow->expires_at)) {
+        DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
+        return back()
+            ->withInput($request->only('reset_email'))
+            ->with('open_forgot_modal', true)
+            ->with('reset_step', 'request')
+            ->withErrors(['reset_code' => 'Verification code expired. Request a new code.']);
+    }
+
+    if ((int) $tokenRow->attempts >= 5) {
+        DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
+        return back()
+            ->withInput($request->only('reset_email'))
+            ->with('open_forgot_modal', true)
+            ->with('reset_step', 'request')
+            ->withErrors(['reset_code' => 'Too many invalid code attempts. Request a new code.']);
+    }
+
+    if (!hash_equals($tokenRow->code_hash, hash('sha256', $validated['reset_code']))) {
+        DB::table('password_reset_codes')
+            ->where('email', $normalizedEmail)
+            ->increment('attempts');
+
+        $attemptsLeft = max(0, 5 - ((int) $tokenRow->attempts + 1));
+
+        return back()
+            ->withInput($request->only('reset_email', 'reset_code'))
+            ->with('open_forgot_modal', true)
+            ->with('reset_step', 'verify')
+            ->with('reset_code_preview', session('reset_code_preview'))
+            ->withErrors(['reset_code' => "Invalid verification code. ({$attemptsLeft} code attempts remaining)"]);
+    }
+
+    DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
 
     $user->password = $validated['new_password'];
     $user->remember_token = null;
@@ -335,7 +445,7 @@ Route::post('/auth/forgot-password', function (Request $request) use ($eduCoreEm
         AuditLog::create([
             'user_id' => $user->id,
             'actor_name' => $user->admin_name ?? $user->name,
-            'event' => 'Password reset via Forgot Password',
+            'event' => 'Password reset verified and completed',
             'meta' => $user->email,
         ]);
     }

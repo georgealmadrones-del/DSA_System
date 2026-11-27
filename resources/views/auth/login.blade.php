@@ -116,35 +116,73 @@
         </p>
     </div>
 
-    <div id="forgotModal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm {{ ($errors->has('reset_email') || $errors->has('new_password') || session('open_forgot_modal')) ? '' : 'hidden' }} flex items-center justify-center p-4 z-50">
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm {{ ($errors->has('reset_email') || $errors->has('reset_code') || $errors->has('new_password') || session('open_forgot_modal')) ? '' : 'hidden' }} flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-coolgrey/20 space-y-4">
             <div class="flex justify-between items-center">
                 <div>
                     <h3 class="text-base font-bold text-charcoal">Reset Password</h3>
-                    <p class="text-[11px] text-slateblue">Enter your registered <span class="font-semibold text-charcoal">@edu.core</span> email and set a new password.</p>
+                    <p class="text-[11px] text-slateblue">Verify a 6-digit code before changing your password.</p>
                 </div>
                 <button type="button" onclick="closeForgotModal()" class="text-gray-400 hover:text-gray-600 text-sm font-bold px-2">X</button>
             </div>
 
-            @if ($errors->has('reset_email') || $errors->has('new_password'))
-                <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs">
-                    {{ $errors->first('reset_email') ?: $errors->first('new_password') }}
+            @if (session('reset_notice'))
+                <div class="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs space-y-1">
+                    <p>{{ session('reset_notice') }}</p>
+                    @if (session('reset_code_preview'))
+                        <p class="font-mono font-bold">Verification Code: {{ session('reset_code_preview') }}</p>
+                    @endif
                 </div>
             @endif
 
-            <form action="{{ route('auth.password.reset') }}" method="POST" class="space-y-4">
+            @if ($errors->has('reset_email') || $errors->has('reset_code') || $errors->has('new_password'))
+                <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs">
+                    {{ $errors->first('reset_email') ?: ($errors->first('reset_code') ?: $errors->first('new_password')) }}
+                </div>
+            @endif
+
+            <!-- Step 1: Request 6-digit code -->
+            <form action="{{ route('auth.password.code') }}" method="POST" class="space-y-3 pb-3 border-b border-coolgrey/20">
                 @csrf
                 <div>
                     <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Account Email (@edu.core)</label>
+                    <div class="flex space-x-2">
+                        <input
+                            type="email"
+                            id="reset-email-input"
+                            name="reset_email"
+                            required
+                            pattern="^[A-Za-z0-9._%+-]+@edu\.core$"
+                            title="Must be a valid @edu.core email address"
+                            placeholder="name@edu.core"
+                            value="{{ old('reset_email', old('email')) }}"
+                            class="flex-1 px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner"
+                        >
+                        <button type="submit" class="px-3.5 py-2.5 bg-gray-100 hover:bg-gray-200 text-charcoal rounded-xl text-xs font-bold transition shrink-0">
+                            Send Code
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Step 2: Submit code + new password -->
+            <form action="{{ route('auth.password.reset') }}" method="POST" class="space-y-3">
+                @csrf
+                <input type="hidden" id="reset-email-hidden" name="reset_email" value="{{ old('reset_email', old('email')) }}">
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">6-Digit Verification Code</label>
                     <input
-                        type="email"
-                        name="reset_email"
+                        type="text"
+                        name="reset_code"
                         required
-                        pattern="^[A-Za-z0-9._%+-]+@edu\.core$"
-                        title="Must be a valid @edu.core email address"
-                        placeholder="name@edu.core"
-                        value="{{ old('reset_email', old('email')) }}"
-                        class="w-full px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner"
+                        inputmode="numeric"
+                        pattern="[0-9]{6}"
+                        maxlength="6"
+                        placeholder="123456"
+                        value="{{ old('reset_code') }}"
+                        class="w-full px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner"
                     >
                 </div>
 
@@ -187,7 +225,7 @@
                     <button type="button" onclick="closeForgotModal()" class="px-4 py-2 bg-gray-100 text-charcoal rounded-xl text-xs font-semibold">
                         Cancel
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-charcoal text-white rounded-xl text-xs font-bold hover:bg-charcoal/90 transition shadow-md">
+                    <button type="submit" onclick="syncResetEmail()" class="px-4 py-2 bg-charcoal text-white rounded-xl text-xs font-bold hover:bg-charcoal/90 transition shadow-md">
                         Update Password
                     </button>
                 </div>
@@ -212,7 +250,7 @@
 
         function openForgotModal() {
             const loginEmail = document.querySelector('input[name="email"]')?.value || '';
-            const resetEmailInput = document.querySelector('input[name="reset_email"]');
+            const resetEmailInput = document.getElementById('reset-email-input');
             if (resetEmailInput && !resetEmailInput.value && loginEmail) {
                 resetEmailInput.value = loginEmail;
             }
@@ -221,6 +259,14 @@
 
         function closeForgotModal() {
             document.getElementById('forgotModal').classList.add('hidden');
+        }
+
+        function syncResetEmail() {
+            const visibleEmail = document.getElementById('reset-email-input')?.value || '';
+            const hiddenEmail = document.getElementById('reset-email-hidden');
+            if (hiddenEmail) {
+                hiddenEmail.value = visibleEmail.trim();
+            }
         }
     </script>
 </body>
