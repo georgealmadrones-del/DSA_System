@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
@@ -44,12 +45,12 @@ try {
             });
         }
 
-        if (User::where('email', 'george@edu.core')->doesntExist()) {
+        if (User::where('email', 'george@gmail.com')->doesntExist()) {
             User::create([
                 'workspace_name' => 'EduCore Workspace',
                 'admin_name' => 'George',
                 'name' => 'George',
-                'email' => 'george@edu.core',
+                'email' => 'george@gmail.com',
                 'password' => '123456789',
             ]);
         }
@@ -67,7 +68,7 @@ try {
                 $table->unsignedBigInteger('user_id')->nullable()->index();
             });
 
-            $defaultUser = User::where('email', 'george@edu.core')->first() ?? User::first();
+            $defaultUser = User::where('email', 'george@gmail.com')->first() ?? User::first();
             if ($defaultUser) {
                 Student::whereNull('user_id')->update(['user_id' => $defaultUser->id]);
             }
@@ -119,9 +120,8 @@ try {
     report($e);
 }
 
-$eduCoreEmailRule = ['required', 'email', 'max:255', 'regex:/^[A-Za-z0-9._%+-]+@edu\.core$/i'];
+$gmailRule = ['required', 'email', 'max:255', 'regex:/^[A-Za-z0-9._%+-]+@gmail\.com$/i'];
 
-// Helper closure to restore session from Remember Me cookie if session expired
 $restoreRememberedUser = function (Request $request): void {
     if ($request->session()->has('user_id')) {
         return;
@@ -148,7 +148,6 @@ $restoreRememberedUser = function (Request $request): void {
     }
 };
 
-// Root URL -> Welcome / Landing Page
 Route::get('/', function (Request $request) use ($restoreRememberedUser) {
     $restoreRememberedUser($request);
 
@@ -174,7 +173,6 @@ Route::get('/', function (Request $request) use ($restoreRememberedUser) {
     return view('welcome', compact('totalStudents', 'averageGpa', 'activeCoursesCount', 'students'));
 })->name('welcome');
 
-// Auth Views
 Route::get('/login', function (Request $request) use ($restoreRememberedUser) {
     $restoreRememberedUser($request);
 
@@ -189,15 +187,14 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-// Handle Database Registration
-Route::post('/auth/register', function (Request $request) use ($eduCoreEmailRule) {
+Route::post('/auth/register', function (Request $request) use ($gmailRule) {
     $validated = $request->validate([
         'workspace_name' => 'required|string|max:255',
         'admin_name' => 'required|string|max:255',
-        'email' => array_merge($eduCoreEmailRule, ['unique:users,email']),
+        'email' => array_merge($gmailRule, ['unique:users,email']),
         'password' => 'required|string|min:6|max:128',
     ], [
-        'email.regex' => 'Only @edu.core email addresses are allowed.',
+        'email.regex' => 'Only @gmail.com email addresses are allowed.',
         'password.min' => 'Password must be at least 6 characters.',
         'password.max' => 'Password must not exceed 128 characters.',
     ]);
@@ -231,13 +228,12 @@ Route::post('/auth/register', function (Request $request) use ($eduCoreEmailRule
     return redirect()->route('students.index');
 })->name('auth.register.store');
 
-// Handle Database Login (with Rate Limiting + Remember Me)
-Route::post('/auth/login', function (Request $request) use ($eduCoreEmailRule) {
+Route::post('/auth/login', function (Request $request) use ($gmailRule) {
     $request->validate([
-        'email' => $eduCoreEmailRule,
+        'email' => $gmailRule,
         'password' => 'required|string|min:6|max:128',
     ], [
-        'email.regex' => 'Only @edu.core email addresses are allowed.',
+        'email.regex' => 'Only @gmail.com email addresses are allowed.',
         'password.min' => 'Password must be at least 6 characters.',
         'password.max' => 'Password must not exceed 128 characters.',
     ]);
@@ -264,7 +260,7 @@ Route::post('/auth/login', function (Request $request) use ($eduCoreEmailRule) {
         return back()
             ->withInput($request->only('email', 'remember'))
             ->withErrors([
-                'email' => "Invalid @edu.core email or password. ({$remaining} attempts remaining)",
+                'email' => "Invalid @gmail.com email or password. ({$remaining} attempts remaining)",
             ]);
     }
 
@@ -304,7 +300,6 @@ Route::post('/auth/login', function (Request $request) use ($eduCoreEmailRule) {
         $user->remember_token = hash('sha256', $plainToken);
         $user->save();
 
-        // Persist Remember Me cookie for 30 days (43,200 minutes)
         $response->withCookie(cookie('educore_remember', $user->id . '|' . $plainToken, 43200));
     } else {
         $user->remember_token = null;
@@ -315,12 +310,12 @@ Route::post('/auth/login', function (Request $request) use ($eduCoreEmailRule) {
     return $response;
 })->name('auth.login.store');
 
-// Step 1: Generate a 6-digit verification code for an @edu.core account
-Route::post('/auth/forgot-password/request', function (Request $request) use ($eduCoreEmailRule) {
+// Step 1: Send a 6-digit verification code to the admin's @gmail.com address
+Route::post('/auth/forgot-password/request', function (Request $request) use ($gmailRule) {
     $validated = $request->validate([
-        'reset_email' => $eduCoreEmailRule,
+        'reset_email' => $gmailRule,
     ], [
-        'reset_email.regex' => 'Only @edu.core email addresses can request a password reset.',
+        'reset_email.regex' => 'Only @gmail.com email addresses are supported.',
     ]);
 
     $normalizedEmail = Str::lower(trim($validated['reset_email']));
@@ -331,57 +326,71 @@ Route::post('/auth/forgot-password/request', function (Request $request) use ($e
         return back()
             ->withInput($request->only('reset_email'))
             ->with('open_forgot_modal', true)
-            ->with('reset_step', 'verify')
             ->withErrors(['reset_email' => "Too many code requests. Try again in {$seconds} seconds."]);
     }
 
     RateLimiter::hit($throttleKey, 300);
 
     $user = User::whereRaw('LOWER(email) = ?', [$normalizedEmail])->first();
-    $code = (string) random_int(100000, 999999);
 
-    if ($user && Schema::hasTable('password_reset_codes')) {
-        DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
-        DB::table('password_reset_codes')->insert([
-            'email' => $normalizedEmail,
-            'code_hash' => hash('sha256', $code),
-            'attempts' => 0,
-            'expires_at' => now()->addMinutes(15),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+    if ($user) {
+        $code = (string) random_int(100000, 999999);
+
+        try {
+            Mail::raw(
+                "Hello {$user->admin_name},\n\nYour EduCore SaaS password reset verification code is: {$code}\n\nThis code expires in 15 minutes. If you did not request this, ignore this email.",
+                function ($message) use ($normalizedEmail) {
+                    $message->to($normalizedEmail)
+                            ->subject('EduCore Password Reset Verification Code');
+                }
+            );
+        } catch (\Throwable $e) {
+            report($e);
+            return back()
+                ->withInput($request->only('reset_email'))
+                ->with('open_forgot_modal', true)
+                ->withErrors(['reset_email' => 'Failed to send email via SMTP. Check your Gmail App Password and host SMTP settings.']);
+        }
+
+        if (Schema::hasTable('password_reset_codes')) {
+            DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
+            DB::table('password_reset_codes')->insert([
+                'email' => $normalizedEmail,
+                'code_hash' => hash('sha256', $code),
+                'attempts' => 0,
+                'expires_at' => now()->addMinutes(15),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         $settings = WorkspaceSetting::where('user_id', $user->id)->first();
         if (Schema::hasTable('audit_logs') && (!$settings || $settings->audit_telemetry)) {
             AuditLog::create([
                 'user_id' => $user->id,
                 'actor_name' => $user->admin_name ?? $user->name,
-                'event' => 'Requested password reset verification code',
-                'meta' => $user->email,
+                'event' => 'Sent password reset code to Gmail',
+                'meta' => $normalizedEmail,
             ]);
         }
     }
 
-    // Without SMTP configured, show the generated code on screen for testing/verification;
-    // when SMTP is wired up later, send $code via Mail::raw(...) instead of flashing it.
     return back()
         ->withInput(['reset_email' => $normalizedEmail])
         ->with('open_forgot_modal', true)
-        ->with('reset_step', 'verify')
-        ->with('reset_code_preview', $user ? $code : null)
-        ->with('reset_notice', 'If ' . $normalizedEmail . ' is registered, a 6-digit verification code valid for 15 minutes has been generated.');
+        ->with('reset_notice', 'If ' . $normalizedEmail . ' is registered, a 6-digit verification code has been sent to that Gmail inbox (valid for 15 minutes).');
 })->name('auth.password.code');
 
-// Step 2: Verify the 6-digit code and update the password
-Route::post('/auth/forgot-password', function (Request $request) use ($eduCoreEmailRule) {
+// Step 2: Verify the code from Gmail and update password
+Route::post('/auth/forgot-password', function (Request $request) use ($gmailRule) {
     $validated = $request->validate([
-        'reset_email' => $eduCoreEmailRule,
+        'reset_email' => $gmailRule,
         'reset_code' => 'required|digits:6',
         'new_password' => 'required|string|min:6|max:128|confirmed',
     ], [
-        'reset_email.regex' => 'Only @edu.core email addresses can reset passwords.',
-        'reset_code.required' => 'Enter the 6-digit verification code.',
-        'reset_code.digits' => 'Verification code must be exactly 6 digits.',
+        'reset_email.regex' => 'Only @gmail.com email addresses are supported.',
+        'reset_code.required' => 'Enter the 6-digit code sent to your Gmail.',
+        'reset_code.digits' => 'Verification code must be 6 digits.',
         'new_password.min' => 'New password must be at least 6 characters.',
         'new_password.max' => 'New password must not exceed 128 characters.',
         'new_password.confirmed' => 'New password confirmation does not match.',
@@ -397,8 +406,7 @@ Route::post('/auth/forgot-password', function (Request $request) use ($eduCoreEm
         return back()
             ->withInput($request->only('reset_email'))
             ->with('open_forgot_modal', true)
-            ->with('reset_step', 'request')
-            ->withErrors(['reset_code' => 'Invalid or expired verification code. Request a new code first.']);
+            ->withErrors(['reset_code' => 'Invalid or expired verification code. Click Send Code first.']);
     }
 
     if (now()->greaterThan($tokenRow->expires_at)) {
@@ -406,7 +414,6 @@ Route::post('/auth/forgot-password', function (Request $request) use ($eduCoreEm
         return back()
             ->withInput($request->only('reset_email'))
             ->with('open_forgot_modal', true)
-            ->with('reset_step', 'request')
             ->withErrors(['reset_code' => 'Verification code expired. Request a new code.']);
     }
 
@@ -415,23 +422,17 @@ Route::post('/auth/forgot-password', function (Request $request) use ($eduCoreEm
         return back()
             ->withInput($request->only('reset_email'))
             ->with('open_forgot_modal', true)
-            ->with('reset_step', 'request')
-            ->withErrors(['reset_code' => 'Too many invalid code attempts. Request a new code.']);
+            ->withErrors(['reset_code' => 'Too many invalid attempts. Request a new code.']);
     }
 
     if (!hash_equals($tokenRow->code_hash, hash('sha256', $validated['reset_code']))) {
-        DB::table('password_reset_codes')
-            ->where('email', $normalizedEmail)
-            ->increment('attempts');
-
+        DB::table('password_reset_codes')->where('email', $normalizedEmail)->increment('attempts');
         $attemptsLeft = max(0, 5 - ((int) $tokenRow->attempts + 1));
 
         return back()
             ->withInput($request->only('reset_email', 'reset_code'))
             ->with('open_forgot_modal', true)
-            ->with('reset_step', 'verify')
-            ->with('reset_code_preview', session('reset_code_preview'))
-            ->withErrors(['reset_code' => "Invalid verification code. ({$attemptsLeft} code attempts remaining)"]);
+            ->withErrors(['reset_code' => "Invalid verification code. ({$attemptsLeft} attempts remaining)"]);
     }
 
     DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
@@ -445,7 +446,7 @@ Route::post('/auth/forgot-password', function (Request $request) use ($eduCoreEm
         AuditLog::create([
             'user_id' => $user->id,
             'actor_name' => $user->admin_name ?? $user->name,
-            'event' => 'Password reset verified and completed',
+            'event' => 'Password reset verified via Gmail code',
             'meta' => $user->email,
         ]);
     }
@@ -455,7 +456,6 @@ Route::post('/auth/forgot-password', function (Request $request) use ($eduCoreEm
         ->with('status', 'Password updated for ' . $user->email . '. You can now log in.');
 })->name('auth.password.reset');
 
-// Main SaaS Dashboard & Module Routes
 Route::get('/students', [StudentController::class, 'index'])->name('students.index');
 Route::get('/directory', [StudentController::class, 'directory'])->name('students.directory');
 Route::get('/actions', [StudentController::class, 'actions'])->name('actions');
@@ -467,7 +467,6 @@ Route::put('/students/{student}', [StudentController::class, 'update'])->name('s
 Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
 Route::post('/settings', [StudentController::class, 'updateSettings'])->name('settings.update');
 
-// Handle Logout -> Clears session and Remember Me cookie
 Route::post('/logout', function (Request $request) {
     $userId = session('user_id');
     if ($userId) {
