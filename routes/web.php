@@ -155,18 +155,10 @@ $registerHandler = function (Request $request) {
     $validated = $request->validate([
         'workspace_name' => ['required', 'string', 'max:255'],
         'admin_name'     => ['required', 'string', 'max:255'],
-        'email'          => [
-            'required',
-            'string',
-            'max:255',
-            'email:rfc',
-            'regex:/^[A-Za-z0-9._%+-]+@edu\.core$/i',
-            'unique:users,email',
-        ],
+        'email'          => ['required', 'string', 'max:255', 'email:rfc', 'unique:users,email'],
         'password'       => ['required', 'string', Password::min(8)->max(128), 'confirmed'],
     ], [
-        'email.regex'  => 'Please use a valid @edu.core email address.',
-        'email.unique' => 'This @edu.core address is already registered.',
+        'email.unique' => 'This email address is already registered.',
     ]);
 
     $cleanAdminName = trim($validated['admin_name']);
@@ -209,16 +201,9 @@ Route::post('/auth/login', function (Request $request) {
     $request->merge(['email' => $normalizedEmail]);
 
     $credentials = $request->validate([
-        'email'    => [
-            'required',
-            'string',
-            'max:255',
-            'email:rfc',
-            'regex:/^[A-Za-z0-9._%+-]+@edu\.core$/i',
-        ],
+        'email'    => ['required', 'string', 'max:255', 'email:rfc'],
         'password' => ['required', 'string', 'min:8', 'max:128'],
     ], [
-        'email.regex'  => 'Please use a valid @edu.core email address.',
         'password.min' => 'Password must be at least 8 characters.',
     ]);
 
@@ -245,7 +230,7 @@ Route::post('/auth/login', function (Request $request) {
         return back()
             ->withInput($request->only('email', 'remember'))
             ->withErrors([
-                'email' => 'Invalid @edu.core address or password.',
+                'email' => 'Invalid email address or password.',
             ]);
     }
 
@@ -269,15 +254,7 @@ Route::post('/forgot-password/code', function (Request $request) {
     $request->merge(['reset_email' => $normalizedEmail]);
 
     $request->validate([
-        'reset_email' => [
-            'required',
-            'string',
-            'max:255',
-            'email:rfc',
-            'regex:/^[A-Za-z0-9._%+-]+@edu\.core$/i',
-        ],
-    ], [
-        'reset_email.regex' => 'Please enter a valid @edu.core address.',
+        'reset_email' => ['required', 'string', 'max:255', 'email:rfc'],
     ]);
 
     $codeKey = 'reset-code:' . sha1($normalizedEmail . '|' . $request->ip());
@@ -363,17 +340,10 @@ Route::post('/forgot-password/reset', function (Request $request) {
     ]);
 
     $validated = $request->validate([
-        'reset_email'  => [
-            'required',
-            'string',
-            'max:255',
-            'email:rfc',
-            'regex:/^[A-Za-z0-9._%+-]+@edu\.core$/i',
-        ],
+        'reset_email'  => ['required', 'string', 'max:255', 'email:rfc'],
         'reset_code'   => ['required', 'digits:6'],
         'new_password' => ['required', 'string', Password::min(8)->max(128), 'confirmed'],
     ], [
-        'reset_email.regex' => 'Please enter a valid @edu.core address.',
         'reset_code.digits' => 'The verification code must be 6 digits.',
     ]);
 
