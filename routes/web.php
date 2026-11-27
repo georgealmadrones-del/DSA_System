@@ -140,8 +140,7 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-// Handle Database Registration
-Route::post('/auth/register', function (Request $request) {
+$registerHandler = function (Request $request) {
     $normalizedEmail = Str::lower(trim((string) $request->input('email')));
     $request->merge(['email' => $normalizedEmail]);
 
@@ -192,7 +191,11 @@ Route::post('/auth/register', function (Request $request) {
     ]);
 
     return redirect()->route('students.index');
-})->name('auth.register.store');
+};
+
+// Handle Database Registration (supports both /register and /auth/register)
+Route::post('/register', $registerHandler);
+Route::post('/auth/register', $registerHandler)->name('auth.register.store');
 
 // Handle Database Login
 Route::post('/auth/login', function (Request $request) {
