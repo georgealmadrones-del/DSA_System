@@ -82,7 +82,7 @@
             </div>
 
             <div>
-                <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Password (6–128 characters)</label>
+                <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Password</label>
                 <div class="relative">
                     <input
                         type="password"

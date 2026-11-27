@@ -35,14 +35,12 @@
             <p class="text-xs text-slateblue">Log in to your academic workspace with your <span class="font-bold text-charcoal">@edu.core</span> email.</p>
         </div>
 
-        <!-- Status Message Display (e.g. after Password Reset) -->
         @if (session('status'))
             <div class="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs font-medium">
                 {{ session('status') }}
             </div>
         @endif
 
-        <!-- Validation Error Message Display -->
         @if ($errors->has('email') || $errors->has('password'))
             <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs">
                 {{ $errors->first('email') ?: $errors->first('password') }}
@@ -66,7 +64,7 @@
             </div>
 
             <div>
-                <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Password (6–128 characters)</label>
+                <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Password</label>
                 <div class="relative">
                     <input
                         type="password"
@@ -87,7 +85,6 @@
                 </div>
             </div>
 
-            <!-- Remember Me & Forgot Password Row -->
             <div class="flex items-center justify-between pt-0.5">
                 <label class="inline-flex items-center space-x-2 cursor-pointer select-none">
                     <input
@@ -119,7 +116,6 @@
         </p>
     </div>
 
-    <!-- Forgot Password Modal -->
     <div id="forgotModal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm {{ ($errors->has('reset_email') || $errors->has('new_password') || session('open_forgot_modal')) ? '' : 'hidden' }} flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-coolgrey/20 space-y-4">
             <div class="flex justify-between items-center">
@@ -153,7 +149,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">New Password (6–128 characters)</label>
+                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">New Password</label>
                     <div class="relative">
                         <input
                             type="password"
