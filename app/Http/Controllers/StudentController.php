@@ -12,11 +12,30 @@ use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
-    private function requireAuthenticatedUser()
+   private function requireAuthenticatedUser()
     {
         $userId = session('user_id');
 
         if (!$userId) {
+            $cookieValue = request()->cookie('educore_remember');
+            if ($cookieValue && str_contains($cookieValue, '|')) {
+                [$cookieUserId, $plainToken] = explode('|', $cookieValue, 2);
+                $user = User::find($cookieUserId);
+                if ($user && $user->remember_token && hash_equals($user->remember_token, hash('sha256', $plainToken))) {
+                    $settings = Schema::hasTable('workspace_settings')
+                        ? WorkspaceSetting::where('user_id', $user->id)->first()
+                        : null;
+
+                    session([
+                        'user_id' => $user->id,
+                        'workspace_name' => $settings->workspace_name ?? ($user->workspace_name ?? 'EduCore Workspace'),
+                        'admin_name' => $user->admin_name ?? $user->name,
+                    ]);
+
+                    return $user->id;
+                }
+            }
+
             abort(redirect()->route('login'));
         }
 
