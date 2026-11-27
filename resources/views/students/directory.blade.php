@@ -24,7 +24,6 @@
     @php
         $gpaScale = number_format((float) ($settings['gpa_scale'] ?? 3.00), 2);
         $minGpaLabel = !empty($settings['data_integrity']) ? '1.00' : '0.00';
-        $auditEntries = isset($logs) ? collect($logs) : collect();
     @endphp
 
     <!-- Fixed Left Sidebar Navigation -->
@@ -203,45 +202,6 @@
                             @empty
                                 <tr>
                                     <td colspan="6" class="py-8 text-center text-slateblue">No records found.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Functional Audit Logs Section -->
-            <div class="bg-white rounded-3xl border border-coolgrey/20 shadow-md overflow-hidden">
-                <div class="p-6 border-b border-coolgrey/20 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-charcoal">Audit Logs</h2>
-                        <p class="text-xs text-slateblue mt-0.5">Recent workspace and student record activity.</p>
-                    </div>
-                    <span class="px-2.5 py-1 bg-gray-100 text-charcoal rounded-xl text-[11px] font-bold">{{ $auditEntries->count() }} entries</span>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-gray-50/70 border-b border-coolgrey/20 text-[10px] font-bold text-slateblue uppercase tracking-wider">
-                                <th class="py-3.5 px-6">Event</th>
-                                <th class="py-3.5 px-6">Details</th>
-                                <th class="py-3.5 px-6">Actor</th>
-                                <th class="py-3.5 px-6 text-right">Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-coolgrey/10">
-                            @forelse ($auditEntries as $log)
-                                <tr class="hover:bg-gray-50/50 transition">
-                                    <td class="py-3.5 px-6 font-bold text-charcoal">{{ $log->event ?? ($log->action ?? 'activity') }}</td>
-                                    <td class="py-3.5 px-6 text-slateblue">{{ $log->meta ?? ($log->description ?? '—') }}</td>
-                                    <td class="py-3.5 px-6 text-charcoal">{{ $log->actor_name ?? 'Administrator' }}</td>
-                                    <td class="py-3.5 px-6 text-right text-slateblue font-mono text-[11px]">
-                                        {{ $log->created_at ? \Illuminate\Support\Carbon::parse($log->created_at)->format('M d, Y H:i') : '—' }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="py-6 text-center text-slateblue">No audit logs recorded yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>
