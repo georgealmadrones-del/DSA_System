@@ -17,7 +17,7 @@
                     }
                 }
             }
-        }
+        };
     </script>
 </head>
 <body class="bg-[#FCFBF7] text-charcoal font-sans antialiased min-h-screen flex items-center justify-center p-6 selection:bg-slateblue/20">
@@ -32,7 +32,9 @@
                 </div>
             </div>
             <h2 class="text-xl font-extrabold text-charcoal">Welcome Back</h2>
-            <p class="text-xs text-slateblue">Log in to your academic workspace with your <span class="font-bold text-charcoal">@edu.core</span> email.</p>
+            <p class="text-xs text-slateblue">
+                Log in to your academic workspace with your <span class="font-bold text-charcoal">@gmail.com</span> email.
+            </p>
         </div>
 
         @if (session('status'))
@@ -49,34 +51,46 @@
 
         <form action="{{ route('auth.login.store') }}" method="POST" class="space-y-4">
             @csrf
+
             <div>
-                <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Email Address (@edu.core)</label>
+                <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">
+                    Email Address (@gmail.com)
+                </label>
                 <input
                     type="email"
                     name="email"
                     required
-                    pattern="^[A-Za-z0-9._%+-]+@edu\.core$"
-                    title="Must be a valid @edu.core email address"
-                    placeholder="name@edu.core"
+                    autocomplete="email"
+                    pattern="^[A-Za-z0-9._%+-]+@gmail\.com$"
+                    title="Must be a valid @gmail.com email address"
+                    placeholder="name@gmail.com"
                     value="{{ old('email') }}"
                     class="w-full px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner"
                 >
             </div>
 
             <div>
-                <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Password</label>
+                <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">
+                    Password
+                </label>
                 <div class="relative">
                     <input
                         type="password"
                         name="password"
                         id="login-password"
                         required
-                        minlength="6"
+                        autocomplete="current-password"
+                        minlength="8"
                         maxlength="128"
                         placeholder="Enter your password"
                         class="w-full px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner pr-10"
                     >
-                    <button type="button" onclick="togglePassword('login-password', 'login-eye-icon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slateblue hover:text-charcoal transition">
+                    <button
+                        type="button"
+                        onclick="togglePassword('login-password', 'login-eye-icon')"
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-slateblue hover:text-charcoal transition"
+                        aria-label="Toggle password visibility"
+                    >
                         <svg id="login-eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -96,7 +110,6 @@
                     >
                     <span class="text-xs text-slateblue font-medium">Remember me</span>
                 </label>
-
                 <button
                     type="button"
                     onclick="openForgotModal()"
@@ -112,7 +125,8 @@
         </form>
 
         <p class="text-center text-xs text-slateblue">
-            Don't have an institution workspace? <a href="{{ route('register') }}" class="font-bold text-charcoal hover:underline">Register</a>
+            Don't have an institution workspace?
+            <a href="{{ route('register') }}" class="font-bold text-charcoal hover:underline">Register</a>
         </p>
     </div>
 
@@ -122,7 +136,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h3 class="text-base font-bold text-charcoal">Reset Password</h3>
-                    <p class="text-[11px] text-slateblue">Verify a 6-digit code before changing your password.</p>
+                    <p class="text-[11px] text-slateblue">Verify a 6-digit code sent to your Gmail before changing your password.</p>
                 </div>
                 <button type="button" onclick="closeForgotModal()" class="text-gray-400 hover:text-gray-600 text-sm font-bold px-2">X</button>
             </div>
@@ -130,9 +144,6 @@
             @if (session('reset_notice'))
                 <div class="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs space-y-1">
                     <p>{{ session('reset_notice') }}</p>
-                    @if (session('reset_code_preview'))
-                        <p class="font-mono font-bold">Verification Code: {{ session('reset_code_preview') }}</p>
-                    @endif
                 </div>
             @endif
 
@@ -146,16 +157,19 @@
             <form action="{{ route('auth.password.code') }}" method="POST" class="space-y-3 pb-3 border-b border-coolgrey/20">
                 @csrf
                 <div>
-                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Account Email (@edu.core)</label>
+                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">
+                        Account Email (@gmail.com)
+                    </label>
                     <div class="flex space-x-2">
                         <input
                             type="email"
                             id="reset-email-input"
                             name="reset_email"
                             required
-                            pattern="^[A-Za-z0-9._%+-]+@edu\.core$"
-                            title="Must be a valid @edu.core email address"
-                            placeholder="name@edu.core"
+                            autocomplete="email"
+                            pattern="^[A-Za-z0-9._%+-]+@gmail\.com$"
+                            title="Must be a valid @gmail.com email address"
+                            placeholder="name@gmail.com"
                             value="{{ old('reset_email', old('email')) }}"
                             class="flex-1 px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner"
                         >
@@ -167,12 +181,14 @@
             </form>
 
             <!-- Step 2: Submit code + new password -->
-            <form action="{{ route('auth.password.reset') }}" method="POST" class="space-y-3">
+            <form action="{{ route('auth.password.reset') }}" method="POST" onsubmit="syncResetEmail()" class="space-y-3">
                 @csrf
                 <input type="hidden" id="reset-email-hidden" name="reset_email" value="{{ old('reset_email', old('email')) }}">
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">6-Digit Verification Code</label>
+                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">
+                        6-Digit Verification Code
+                    </label>
                     <input
                         type="text"
                         name="reset_code"
@@ -187,19 +203,27 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">New Password</label>
+                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">
+                        New Password
+                    </label>
                     <div class="relative">
                         <input
                             type="password"
                             name="new_password"
                             id="reset-new-password"
                             required
-                            minlength="6"
+                            autocomplete="new-password"
+                            minlength="8"
                             maxlength="128"
-                            placeholder="Enter new password"
+                            placeholder="Enter new password (min 8 characters)"
                             class="w-full px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner pr-10"
                         >
-                        <button type="button" onclick="togglePassword('reset-new-password', 'reset-eye-1')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slateblue hover:text-charcoal transition">
+                        <button
+                            type="button"
+                            onclick="togglePassword('reset-new-password', 'reset-eye-1')"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slateblue hover:text-charcoal transition"
+                            aria-label="Toggle new password visibility"
+                        >
                             <svg id="reset-eye-1" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -209,12 +233,15 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Confirm New Password</label>
+                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">
+                        Confirm New Password
+                    </label>
                     <input
                         type="password"
                         name="new_password_confirmation"
                         required
-                        minlength="6"
+                        autocomplete="new-password"
+                        minlength="8"
                         maxlength="128"
                         placeholder="Re-enter new password"
                         class="w-full px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner"
@@ -225,7 +252,7 @@
                     <button type="button" onclick="closeForgotModal()" class="px-4 py-2 bg-gray-100 text-charcoal rounded-xl text-xs font-semibold">
                         Cancel
                     </button>
-                    <button type="submit" onclick="syncResetEmail()" class="px-4 py-2 bg-charcoal text-white rounded-xl text-xs font-bold hover:bg-charcoal/90 transition shadow-md">
+                    <button type="submit" class="px-4 py-2 bg-charcoal text-white rounded-xl text-xs font-bold hover:bg-charcoal/90 transition shadow-md">
                         Update Password
                     </button>
                 </div>
