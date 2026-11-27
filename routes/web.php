@@ -53,14 +53,22 @@ Route::middleware('guest')->group(function () {
             'email.unique' => 'This @gmail.com address is already registered.',
         ]);
 
+        $cleanAdminName = trim($validated['admin_name']);
+        $cleanWorkspaceName = trim($validated['workspace_name']);
+
         $userData = [
-            'name'     => trim($validated['admin_name']),
-            'email'    => $normalizedEmail,
-            'password' => Hash::make($validated['password']),
+            'name'       => $cleanAdminName,
+            'admin_name' => $cleanAdminName,
+            'email'      => $normalizedEmail,
+            'password'   => Hash::make($validated['password']),
         ];
 
         if (Schema::hasColumn('users', 'workspace_name')) {
-            $userData['workspace_name'] = trim($validated['workspace_name']);
+            $userData['workspace_name'] = $cleanWorkspaceName;
+        }
+
+        if (Schema::hasColumn('users', 'role') && !array_key_exists('role', $userData)) {
+            $userData['role'] = 'admin';
         }
 
         $user = User::create($userData);
