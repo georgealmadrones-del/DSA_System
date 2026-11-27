@@ -378,10 +378,11 @@ class StudentController extends Controller
         $averageGpa = Student::where('user_id', $userId)->avg('gpa') ?? 0;
         $activeCoursesCount = $this->computeActiveCoursesCount($userId);
 
-        return $this->resolveView(
-            ['students.settings', 'settings'],
-            compact('students', 'totalStudents', 'averageGpa', 'activeCoursesCount', 'settings')
-        );
+        if (view()->exists('settings')) {
+            return view('settings', compact('students', 'totalStudents', 'averageGpa', 'activeCoursesCount', 'settings'));
+        }
+
+        return view('students.settings', compact('students', 'totalStudents', 'averageGpa', 'activeCoursesCount', 'settings'));
     }
 
     public function store(Request $request)
@@ -510,12 +511,13 @@ class StudentController extends Controller
         $validated = $request->validate([
             'workspace_name'    => ['required', 'string', 'max:255'],
             'student_id_prefix' => ['nullable', 'string', 'max:32'],
-            'gpa_scale'         => ['required', 'in:3.00,4.00,3,4'],
+            'gpa_scale'         => ['required', 'in:3.00,4.00,5.00,3,4,5'],
             'academic_term'     => ['required', 'string', 'max:255'],
         ]);
 
         $prefix = $this->normalizePrefix((string) ($validated['student_id_prefix'] ?? 'STU-'));
-        $scale = (float) $validated['gpa_scale'] >= 4.0 ? 4.00 : 3.00;
+        $rawScale = (float) $validated['gpa_scale'];
+        $scale = $rawScale >= 5.0 ? 5.00 : ($rawScale >= 4.0 ? 4.00 : 3.00);
         $dataIntegrity = $request->has('data_integrity');
         $auditTelemetry = $request->has('audit_telemetry');
 
