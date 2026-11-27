@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\StudentController;
+use App\Models\AuditLog;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\WorkspaceSetting;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -11,7 +13,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
-// Ensure database tables, columns, indexes, and default fallback user exist safely
 try {
     $connection = config('database.default');
 
@@ -25,7 +26,6 @@ try {
         }
     }
 
-    // Run pending migrations automatically if core tables are missing
     if (!Schema::hasTable('users') || !Schema::hasTable('sessions')) {
         Artisan::call('migrate', [
             '--force' => true,
@@ -33,7 +33,6 @@ try {
         ]);
     }
 
-    // Ensure default fallback user exists so login works after container restarts
     if (Schema::hasTable('users') && User::where('email', 'george@edu.core')->doesntExist()) {
         User::create([
             'workspace_name' => 'EduCore Workspace',
@@ -44,7 +43,6 @@ try {
         ]);
     }
 
-    // Ensure 'course' and 'user_id' columns exist on students table
     if (Schema::hasTable('students')) {
         if (!Schema::hasColumn('students', 'course')) {
             Schema::table('students', function (Blueprint $table) {
@@ -63,20 +61,41 @@ try {
             }
         }
 
-        // Scope student_id uniqueness per user_id so different accounts can use the same Student ID
-        if (Schema::hasColumn('students', 'user_id') && Schema::hasColumn('students', 'student_id')) {
-            if ($connection === 'pgsql') {
-                DB::statement('ALTER TABLE students DROP CONSTRAINT IF EXISTS students_student_id_unique');
-                DB::statement('DROP INDEX IF EXISTS students_student_id_unique');
-                DB::statement('CREATE UNIQUE INDEX IF NOT EXISTS students_user_id_student_id_unique ON students (user_id, student_id)');
-            }
+        if (Schema::hasColumn('students', 'user_id') && Schema::hasColumn('students', 'student_id') && $connection === 'pgsql') {
+            DB::statement('ALTER TABLE students DROP CONSTRAINT IF EXISTS students_student_id_unique');
+            DB::statement('DROP INDEX IF EXISTS students_student_id_unique');
+            DB::statement('CREATE UNIQUE INDEX IF NOT EXISTS students_user_id_student_id_unique ON students (user_id, student_id)');
         }
+    }
+
+    if (!Schema::hasTable('workspace_settings')) {
+        Schema::create('workspace_settings', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id')->unique();
+            $table->string('workspace_name')->default('EduCore Workspace');
+            $table->string('student_id_prefix', 32)->default('STU-');
+            $table->decimal('gpa_scale', 3, 2)->default(3.00);
+            $table->string('academic_term')->default('1st Semester AY 2026-2027');
+            $table->boolean('data_integrity')->default(true);
+            $table->boolean('audit_telemetry')->default(true);
+            $table->timestamps();
+        });
+    }
+
+    if (!Schema::hasTable('audit_logs')) {
+        Schema::create('audit_logs', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id')->nullable()->index();
+            $table->string('actor_name')->nullable();
+            $table->string('event');
+            $table->text('meta')->nullable();
+            $table->timestamps();
+        });
     }
 } catch (\Throwable $e) {
     report($e);
 }
 
-// Root URL -> Welcome / Landing Page
 Route::get('/', function () {
     try {
         $userId = session('user_id');
@@ -100,7 +119,6 @@ Route::get('/', function () {
     return view('welcome', compact('totalStudents', 'averageGpa', 'activeCoursesCount', 'students'));
 })->name('welcome');
 
-// Auth Views
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
@@ -109,7 +127,6 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
-// Handle Database Registration
 Route::post('/auth/register', function (Request $request) {
     $validated = $request->validate([
         'workspace_name' => 'required|string|max:255',
@@ -126,6 +143,18 @@ Route::post('/auth/register', function (Request $request) {
         'password' => $validated['password'],
     ]);
 
+    WorkspaceSetting::firstOrCreate(
+        ['user_id' => $user->id],
+        [
+            'workspace_name' => $user->workspace_name,
+            'student_id_prefix' => 'STU-',
+            'gpa_scale' => 3.00,
+            'academic_term' => '1st Semester AY 2026-2027',
+            'data_integrity' => true,
+            'audit_telemetry' => true,
+        ]
+    );
+
     session([
         'user_id' => $user->id,
         'workspace_name' => $user->workspace_name,
@@ -135,7 +164,6 @@ Route::post('/auth/register', function (Request $request) {
     return redirect()->route('students.index');
 })->name('auth.register.store');
 
-// Handle Database Login
 Route::post('/auth/login', function (Request $request) {
     $request->validate([
         'email' => 'required|email',
@@ -148,27 +176,38 @@ Route::post('/auth/login', function (Request $request) {
         return back()->withErrors(['email' => 'Invalid email or password provided.']);
     }
 
+    $settings = WorkspaceSetting::firstOrCreate(
+        ['user_id' => $user->id],
+        [
+            'workspace_name' => $user->workspace_name ?? 'EduCore Workspace',
+            'student_id_prefix' => 'STU-',
+            'gpa_scale' => 3.00,
+            'academic_term' => '1st Semester AY 2026-2027',
+            'data_integrity' => true,
+            'audit_telemetry' => true,
+        ]
+    );
+
     session([
         'user_id' => $user->id,
-        'workspace_name' => $user->workspace_name,
-        'admin_name' => $user->admin_name,
+        'workspace_name' => $settings->workspace_name ?: ($user->workspace_name ?? 'EduCore Workspace'),
+        'admin_name' => $user->admin_name ?? $user->name,
     ]);
 
     return redirect()->route('students.index');
 })->name('auth.login.store');
 
-// Main SaaS Dashboard & Module Routes
 Route::get('/students', [StudentController::class, 'index'])->name('students.index');
 Route::get('/directory', [StudentController::class, 'directory'])->name('students.directory');
 Route::get('/actions', [StudentController::class, 'actions'])->name('actions');
 Route::get('/settings', [StudentController::class, 'settings'])->name('settings');
+Route::get('/settings/export', [StudentController::class, 'exportCsv'])->name('settings.export');
 
 Route::post('/students', [StudentController::class, 'store'])->name('students.store');
 Route::put('/students/{student}', [StudentController::class, 'update'])->name('students.update');
 Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
 Route::post('/settings', [StudentController::class, 'updateSettings'])->name('settings.update');
 
-// Handle Logout -> Redirects to Welcome page
 Route::post('/logout', function (Request $request) {
     $request->session()->flush();
     return redirect()->route('welcome');
