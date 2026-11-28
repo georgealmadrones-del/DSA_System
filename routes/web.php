@@ -63,6 +63,39 @@ if (!function_exists('recordAuditLog')) {
     }
 }
 
+if (!function_exists('getAvailableCourses')) {
+    function getAvailableCourses(?int $userId = null): array
+    {
+        $courses = collect();
+
+        if (Schema::hasTable('courses')) {
+            $query = DB::table('courses');
+            if ($userId && Schema::hasColumn('courses', 'user_id')) {
+                $query->where(function ($q) use ($userId) {
+                    $q->where('user_id', $userId)->orWhereNull('user_id');
+                });
+            }
+            $courses = $courses->merge($query->pluck('name'));
+        }
+
+        if (Schema::hasTable('students') && Schema::hasColumn('students', 'course')) {
+            $studentQuery = Student::query()->whereNotNull('course')->where('course', '!=', '');
+            if ($userId && Schema::hasColumn('students', 'user_id')) {
+                $studentQuery->where('user_id', $userId);
+            }
+            $courses = $courses->merge($studentQuery->pluck('course'));
+        }
+
+        return $courses
+            ->map(fn ($c) => trim((string) $c))
+            ->filter(fn ($c) => $c !== '')
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+}
+
 try {
     $connection = config('database.default');
 
@@ -81,6 +114,19 @@ try {
             '--force' => true,
             '--no-interaction' => true,
         ]);
+    }
+
+    if (!Schema::hasTable('courses')) {
+        Schema::create('courses', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id')->nullable()->index();
+            $table->string('name');
+            $table->timestamps();
+        });
+    } elseif (!Schema::hasColumn('courses', 'user_id')) {
+        Schema::table('courses', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id')->nullable()->index();
+        });
     }
 
     if (Schema::hasTable('students')) {
@@ -120,11 +166,7 @@ Route::get('/', function () {
 
         $totalStudents = (clone $query)->count();
         $averageGpa = (clone $query)->avg('gpa') ?? 0;
-        $activeCoursesCount = (clone $query)
-            ->whereNotNull('course')
-            ->where('course', '!=', '')
-            ->distinct()
-            ->count('course');
+        $activeCoursesCount = count(getAvailableCourses(is_numeric($userId) ? (int) $userId : null));
         $students = (clone $query)->latest()->take(5)->get();
     } catch (\Throwable $e) {
         $totalStudents = 0;
@@ -434,6 +476,38 @@ Route::get('/students', [StudentController::class, 'index'])->name('students.ind
 Route::get('/directory', [StudentController::class, 'directory'])->name('students.directory');
 Route::get('/gpa-analytics', [StudentController::class, 'gpaAnalytics'])->name('students.gpa');
 Route::get('/courses', [StudentController::class, 'courses'])->name('students.courses');
+Route::post('/courses', function (Request $request) {
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:60'],
+    ]);
+
+    $cleanName = trim($validated['name']);
+    $userId = Auth::id() ?? session('user_id');
+    $uid = is_numeric($userId) ? (int) $userId : null;
+
+    if (Schema::hasTable('courses')) {
+        $existsQuery = DB::table('courses')->whereRaw('LOWER(name) = ?', [Str::lower($cleanName)]);
+        if ($uid && Schema::hasColumn('courses', 'user_id')) {
+            $existsQuery->where('user_id', $uid);
+        }
+
+        if (!$existsQuery->exists()) {
+            $row = [
+                'name'       => $cleanName,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            if ($uid && Schema::hasColumn('courses', 'user_id')) {
+                $row['user_id'] = $uid;
+            }
+            DB::table('courses')->insert($row);
+        }
+    }
+
+    recordAuditLog('course.created', $uid, $request, "Added course: {$cleanName}");
+
+    return redirect()->back()->with('success', "Course \"{$cleanName}\" added.");
+})->name('courses.store');
 Route::put('/courses/rename', [StudentController::class, 'renameCourse'])->name('courses.rename');
 Route::delete('/courses/delete', [StudentController::class, 'deleteCourse'])->name('courses.delete');
 Route::get('/actions', [StudentController::class, 'actions'])->name('actions');
@@ -447,7 +521,7 @@ Route::post('/settings', [StudentController::class, 'updateSettings'])->name('se
 
 Route::post('/logout', function (Request $request) {
     $loggedInUser = Auth::user();
-    $sessionUserId = $loggedInUser?->id ?? session('user_id');  
+    $sessionUserId = $loggedInUser?->id ?? session('user_id');
     recordAuditLog('auth.logout', is_numeric($sessionUserId) ? (int) $sessionUserId : null, $request, 'User logged out');
 
     Auth::logout();
@@ -457,3 +531,10 @@ Route::post('/logout', function (Request $request) {
 
     return redirect()->route('welcome');
 })->name('logout');
+
+View::composer('students.index', function ($view) {
+    if (!$view->offsetExists('courses')) {
+        $userId = Auth::id() ?? session('user_id');
+        $view->with('courses', getAvailableCourses(is_numeric($userId) ? (int) $userId : null));
+    }
+});

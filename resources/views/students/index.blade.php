@@ -31,6 +31,14 @@
         $defaultStudentId = $nextStudentId ?? (($settings['student_id_prefix'] ?? 'STU-') . '0001');
         $rawTerm = $settings['academic_term'] ?? 'Current Term';
         $displayTerm = str_replace('AY 2026-2027', 'SY 2026-2027', $rawTerm);
+
+        $availableCourses = collect($courses ?? [])
+            ->merge(collect($students ?? [])->pluck('course'))
+            ->map(fn ($c) => trim((string) $c))
+            ->filter(fn ($c) => $c !== '')
+            ->unique()
+            ->sort()
+            ->values();
     @endphp
 
     <!-- Mobile Sidebar Overlay Drawer -->
@@ -450,8 +458,16 @@
                     <input type="text" name="name" value="{{ old('name') }}" required placeholder="Student name" class="w-full px-3 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">Course</label>
-                    <input type="text" name="course" value="{{ old('course', '') }}" required placeholder="e.g. BSIT" class="w-full px-3 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider">Course</label>
+                        <a href="{{ Route::has('students.courses') ? route('students.courses') : url('/courses') }}" class="text-[10px] font-bold text-candlelight hover:underline">+ Add Course</a>
+                    </div>
+                    <select name="course" required class="w-full px-3 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner cursor-pointer">
+                        <option value="" disabled {{ old('course') ? '' : 'selected' }}>Choose a course</option>
+                        @foreach ($availableCourses as $courseName)
+                            <option value="{{ $courseName }}" {{ old('course') == $courseName ? 'selected' : '' }}>{{ $courseName }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">GPA ({{ $minGpaLabel }} - {{ $gpaScale }})</label>
