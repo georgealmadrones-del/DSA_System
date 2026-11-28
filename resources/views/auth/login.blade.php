@@ -133,7 +133,7 @@
 
         <p class="text-center text-xs text-slate-400">
             New to EduCore?
-            <a href="{{ route('register') }}" class="font-bold text-candlelight hover:underline">Create a workspace</a>
+            <a href="{{ route('register') }}" class="font-bold text-candlelight hover:underline">Register</a>
         </p>
     </div>
 

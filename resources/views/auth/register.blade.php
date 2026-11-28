@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - EduCore SaaS</title>
+    <title>Create Workspace - EduCore SaaS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -49,7 +49,7 @@
                     <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                 </div>
             </div>
-            <h2 class="text-xl font-extrabold text-white">Register</h2>
+            <h2 class="text-xl font-extrabold text-white">Create your workspace</h2>
             <p class="text-xs text-slate-300">Start your EduCore records space with a Gmail account.</p>
         </div>
 
@@ -155,7 +155,7 @@
             </div>
 
             <button type="submit" class="w-full py-3 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-lg shadow-candlelight/20">
-                Register
+                Create workspace
             </button>
         </form>
 
