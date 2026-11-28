@@ -22,7 +22,7 @@
 </head>
 <body class="bg-[#FCFBF7] text-charcoal font-sans antialiased h-screen overflow-hidden flex selection:bg-slateblue/20">
     @php
-        $gpaScale = number_format((float) ($settings['gpa_scale'] ?? 3.00), 2);
+        $gpaScale = number_format((float)($settings['gpa_scale'] ?? 3.00), 2);
         $minGpaLabel = !empty($settings['data_integrity']) ? '1.00' : '0.00';
         $auditEntries = isset($logs) ? collect($logs) : collect();
     @endphp
@@ -78,14 +78,17 @@
                     <span>Settings</span>
                 </a>
             </div>
-
             <div class="flex items-center justify-between p-3 bg-white border border-coolgrey/30 rounded-2xl shadow-md">
                 <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
-                    <div class="w-8 h-8 rounded-full bg-slateblue/20 text-slateblue font-bold flex items-center justify-center text-xs shrink-0">
-                        {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
-                    </div>
+                    @if (!empty($adminAvatar))
+                        <img src="{{ $adminAvatar }}" alt="{{ $adminName }}" class="w-8 h-8 rounded-full object-cover border border-coolgrey/40 shrink-0">
+                    @else
+                        <div class="w-8 h-8 rounded-full bg-slateblue/20 text-slateblue font-bold flex items-center justify-center text-xs shrink-0">
+                            {{ $adminInitials ?? strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
+                        </div>
+                    @endif
                     <div class="min-w-0">
-                        <p class="text-xs font-bold text-charcoal truncate">{{ session('admin_name', 'Alex Davis') }}</p>
+                        <p class="text-xs font-bold text-charcoal truncate">{{ $adminName ?? session('admin_name', 'Alex Davis') }}</p>
                         <p class="text-[10px] text-slateblue font-medium truncate">Administrator</p>
                     </div>
                 </div>
@@ -103,9 +106,13 @@
     <main class="flex-1 h-full flex flex-col min-w-0 overflow-hidden">
         <header class="bg-[#FCFBF7] border-b border-coolgrey/20 h-16 flex items-center justify-between px-8 shrink-0 shadow-sm">
             <div class="text-xs text-slateblue font-medium">Workspace / <span class="text-charcoal font-semibold">Directory</span></div>
-            <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-charcoal text-white font-bold text-xs flex items-center justify-center shadow-md cursor-pointer">
-                {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
-            </div>
+            @if (!empty($adminAvatar))
+                <img onclick="document.getElementById('profileModal').classList.remove('hidden')" src="{{ $adminAvatar }}" alt="{{ $adminName }}" class="w-8 h-8 rounded-xl object-cover border border-coolgrey/40 shadow-md cursor-pointer">
+            @else
+                <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-charcoal text-white font-bold text-xs flex items-center justify-center shadow-md cursor-pointer">
+                    {{ $adminInitials ?? strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
+                </div>
+            @endif
         </header>
 
         <div class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
@@ -114,7 +121,6 @@
                     {{ session('success') }}
                 </div>
             @endif
-
             @if ($errors->any())
                 <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-700 shadow-sm">
                     <ul class="list-disc pl-4 space-y-0.5">
@@ -142,7 +148,6 @@
             <div class="bg-white rounded-3xl border border-coolgrey/20 shadow-md overflow-hidden">
                 <div class="p-6 border-b border-coolgrey/20 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <h2 class="text-sm font-bold text-charcoal">Enrolled Records</h2>
-
                     <form method="GET" action="{{ route('students.directory') }}" class="flex flex-wrap items-center gap-2">
                         <input type="text" id="directorySearchInput" name="search" value="{{ request('search') }}" placeholder="Search student ID, name, course..." oninput="filterDirectoryRows()" class="px-3.5 py-2 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs shadow-inner focus:outline-none focus:ring-2 focus:ring-slateblue/50 w-64">
                         <button type="submit" class="px-4 py-2 bg-charcoal text-white rounded-xl text-xs font-bold hover:bg-charcoal/90 transition shadow-sm">
@@ -155,7 +160,6 @@
                         @endif
                     </form>
                 </div>
-
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
@@ -181,14 +185,10 @@
                                     <td class="py-4 px-4 text-slateblue font-medium">{{ $student->course }}</td>
                                     <td class="py-4 px-4 font-extrabold text-charcoal">{{ number_format((float) $student->gpa, 2) }}</td>
                                     <td class="py-4 px-4 text-right space-x-1.5 whitespace-nowrap">
-                                        <button type="button"
-                                            onclick="openViewModal(@js($student->student_id), @js($student->name), @js($student->course), @js(number_format((float) $student->gpa, 2)))"
-                                            class="px-2.5 py-1 bg-gray-50 hover:bg-gray-100 text-charcoal border border-coolgrey/30 rounded-lg text-[11px] font-bold transition">
+                                        <button type="button" onclick="openViewModal(@js($student->student_id), @js($student->name), @js($student->course), @js(number_format((float) $student->gpa, 2)))" class="px-2.5 py-1 bg-gray-50 hover:bg-gray-100 text-charcoal border border-coolgrey/30 rounded-lg text-[11px] font-bold transition">
                                             See
                                         </button>
-                                        <button type="button"
-                                            onclick="openEditModal(@js($student->id), @js($student->student_id), @js($student->name), @js($student->course), @js($student->gpa))"
-                                            class="px-2.5 py-1 bg-gray-50 hover:bg-gray-100 text-slateblue border border-coolgrey/30 rounded-lg text-[11px] font-bold transition">
+                                        <button type="button" onclick="openEditModal(@js($student->id), @js($student->student_id), @js($student->name), @js($student->course), @js($student->gpa))" class="px-2.5 py-1 bg-gray-50 hover:bg-gray-100 text-slateblue border border-coolgrey/30 rounded-lg text-[11px] font-bold transition">
                                             Edit
                                         </button>
                                         <form action="{{ route('students.destroy', $student->id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this student record?')">
@@ -233,10 +233,10 @@
                             @forelse ($auditEntries as $log)
                                 <tr class="hover:bg-gray-50/50 transition">
                                     <td class="py-3.5 px-6 font-bold text-charcoal">{{ $log->event ?? ($log->action ?? 'activity') }}</td>
-                                    <td class="py-3.5 px-6 text-slateblue">{{ $log->meta ?? ($log->description ?? '—') }}</td>
+                                    <td class="py-3.5 px-6 text-slateblue">{{ $log->meta ?? ($log->description ?? '-') }}</td>
                                     <td class="py-3.5 px-6 text-charcoal">{{ $log->actor_name ?? 'Administrator' }}</td>
                                     <td class="py-3.5 px-6 text-right text-slateblue font-mono text-[11px]">
-                                        {{ $log->created_at ? \Illuminate\Support\Carbon::parse($log->created_at)->format('M d, Y H:i') : '—' }}
+                                        {{ $log->created_at ? \Illuminate\Support\Carbon::parse($log->created_at)->format('M d, Y H:i') : '' }}
                                     </td>
                                 </tr>
                             @empty
@@ -304,32 +304,85 @@
         </div>
     </div>
 
-    <!-- Profile Modal -->
-    <div id="profileModal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-coolgrey/20 space-y-4">
+    <!-- Admin Profile Modal -->
+    <div id="profileModal" class="fixed inset-0 bg-charcoal/50 backdrop-blur-sm {{ !empty($openProfileModal) ? '' : 'hidden' }} flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-coolgrey/20 space-y-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center">
-                <h3 class="text-base font-bold text-charcoal">Admin Profile & Session</h3>
+                <h3 class="text-base font-bold text-charcoal">Admin profile</h3>
                 <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-sm font-bold">X</button>
             </div>
-            <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl border border-coolgrey/20">
-                <div class="w-12 h-12 rounded-full bg-slateblue/20 text-slateblue font-bold flex items-center justify-center text-sm">
-                    {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
+            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                @csrf
+                <div class="flex items-center space-x-4 p-3.5 bg-gray-50 rounded-2xl border border-coolgrey/20">
+                    <div class="w-16 h-16 rounded-2xl bg-slateblue/15 border border-coolgrey/30 flex items-center justify-center overflow-hidden shrink-0">
+                        @if (!empty($adminAvatar))
+                            <img id="profilePreviewImg" src="{{ $adminAvatar }}" alt="Profile photo" class="w-full h-full object-cover">
+                        @else
+                            <span id="profilePreviewInitials" class="text-sm font-extrabold text-slateblue">{{ $adminInitials ?? strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}</span>
+                            <img id="profilePreviewImg" src="" alt="Profile photo" class="w-full h-full object-cover hidden">
+                        @endif
+                    </div>
+                    <div class="space-y-1.5 min-w-0">
+                        <p class="text-[11px] font-bold text-slateblue uppercase tracking-wider">Profile photo</p>
+                        <input type="file" id="avatar_photo" name="avatar_photo" accept="image/png,image/jpeg,image/webp,image/gif" onchange="previewProfilePhoto(this)" class="block w-full text-[11px] text-charcoal file:mr-2.5 file:py-1.5 file:px-3 file:rounded-xl file:border file:border-coolgrey/40 file:text-[11px] file:font-bold file:bg-white file:text-charcoal hover:file:bg-gray-100 cursor-pointer">
+                    </div>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-charcoal">{{ session('admin_name', 'Alex Davis') }}</p>
-                    <p class="text-xs text-slateblue">Administrator</p>
-                    <span class="inline-block mt-1 px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full">System Administrator</span>
+                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Name</label>
+                    <input type="text" name="name" value="{{ old('name', $adminName ?? session('admin_name', 'Alex Davis')) }}" required maxlength="120" class="w-full px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner">
                 </div>
-            </div>
-            <div class="flex justify-end pt-2">
-                <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="px-4 py-2 bg-gray-100 text-charcoal rounded-xl text-xs font-semibold shadow-sm">Close</button>
-            </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slateblue uppercase tracking-wider mb-1">Email</label>
+                    <input type="email" name="email" value="{{ old('email', $adminEmail ?? session('admin_email', 'admin@educore.local')) }}" required maxlength="255" class="w-full px-3.5 py-2.5 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner">
+                </div>
+                <div class="pt-2 border-t border-coolgrey/20 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[11px] font-bold text-slateblue uppercase tracking-wider">Change Password</p>
+                        <span class="text-[10px] text-gray-400">Optional</span>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-charcoal mb-1">Current Password</label>
+                        <input type="password" name="current_password" autocomplete="current-password" placeholder="Required only when setting a new password" class="w-full px-3.5 py-2 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-charcoal mb-1">New Password</label>
+                            <input type="password" name="new_password" autocomplete="new-password" placeholder="Min. 8 characters" class="w-full px-3.5 py-2 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-charcoal mb-1">Confirm Password</label>
+                            <input type="password" name="new_password_confirmation" autocomplete="new-password" placeholder="Repeat new password" class="w-full px-3.5 py-2 bg-gray-50 border border-coolgrey/30 rounded-xl text-xs text-charcoal focus:outline-none focus:ring-2 focus:ring-slateblue/50 shadow-inner">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="px-4 py-2 bg-gray-100 text-charcoal rounded-xl text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-charcoal text-white rounded-xl text-xs font-semibold hover:bg-charcoal/90 transition shadow-sm">Save profile</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
-        let lockedEditPrefix = 'STU-';
+        function previewProfilePhoto(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.getElementById('profilePreviewImg');
+                const initials = document.getElementById('profilePreviewInitials');
+                if (img) {
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                }
+                if (initials) {
+                    initials.classList.add('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
 
+        let lockedEditPrefix = 'STU-';
         function toggleSelectAll(masterCheckbox) {
             const checkboxes = document.querySelectorAll('.student-row-checkbox');
             checkboxes.forEach((cb) => {
@@ -340,24 +393,17 @@
             });
             updateSelectionCount();
         }
-
         function updateSelectionCount() {
             const checked = document.querySelectorAll('.student-row-checkbox:checked');
             const badge = document.getElementById('selectedCountBadge');
             const bulkBtn = document.getElementById('bulkDeleteBtn');
-            if (badge) {
-                badge.textContent = `${checked.length} selected`;
-            }
-            if (bulkBtn) {
-                bulkBtn.disabled = checked.length === 0;
-            }
+            if (badge) badge.textContent = `${checked.length} selected`;
+            if (bulkBtn) bulkBtn.disabled = checked.length === 0;
         }
-
         async function deleteSelectedStudents() {
             const checked = Array.from(document.querySelectorAll('.student-row-checkbox:checked'));
             if (checked.length === 0) return;
             if (!confirm(`Delete ${checked.length} selected student record(s)?`)) return;
-
             const csrfToken = document.querySelector('input[name="_token"]')?.value || '';
             for (const cb of checked) {
                 const id = cb.value;
@@ -372,7 +418,6 @@
             }
             window.location.reload();
         }
-
         function filterDirectoryRows() {
             const query = String(document.getElementById('directorySearchInput')?.value || '').trim().toLowerCase();
             const rows = document.querySelectorAll('.directory-row');
@@ -381,12 +426,9 @@
                 row.classList.toggle('hidden', query !== '' && !haystack.includes(query));
             });
             const selectAll = document.getElementById('selectAllStudents');
-            if (selectAll) {
-                selectAll.checked = false;
-            }
+            if (selectAll) selectAll.checked = false;
             updateSelectionCount();
         }
-
         function openViewModal(studentId, name, course, gpa) {
             document.getElementById('view_student_id').textContent = studentId;
             document.getElementById('view_name').textContent = name;
@@ -394,23 +436,18 @@
             document.getElementById('view_gpa').textContent = gpa;
             document.getElementById('viewModal').classList.remove('hidden');
         }
-
         function cleanGpaInput(input) {
             let val = String(input.value || '').replace(/[^0-9.]/g, '');
             const parts = val.split('.');
-            if (parts.length > 2) {
-                val = parts.shift() + '.' + parts.join('');
-            }
+            if (parts.length > 2) val = parts.shift() + '.' + parts.join('');
             input.value = val;
         }
-
         function enforcePrefixLock(input) {
             const raw = String(input.value || '');
             const match = raw.match(/(\d+)\s*$/);
             const digits = match ? match[1] : '';
             input.value = lockedEditPrefix + digits;
         }
-
         function openEditModal(id, studentId, name, course, gpa) {
             const form = document.getElementById('editForm');
             form.action = `/students/${id}`;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCore SaaS Activity Log</title>
+    <title>EduCore Saas Activity Log</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -23,7 +23,7 @@
 </head>
 <body class="bg-midnight text-slate-200 font-sans antialiased h-screen overflow-hidden flex selection:bg-candlelight/30 selection:text-candlelight">
     <!-- Fixed Left Sidebar Navigation -->
-    <aside class="relative w-64 h-full bg-gradient-to-b from-[#0E2438] via-deepnavy to-[#091622] border-r border-twilight/90 flex-col justify-between hidden md:flex shrink-0 shadow-2xl z-20 overflow-hidden">
+    <aside class="relative w-64 h-full bg-gradient-to-b from-[#230E2438] via-deepnavy to-[#091622] border-r border-twilight/90 flex-col justify-between hidden md:flex shrink-0 shadow-2xl z-20 overflow-hidden">
         <div class="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,_rgba(218,169,133,0.14),_transparent_70%)]"></div>
         <svg class="pointer-events-none absolute top-16 right-3 w-12 h-12 text-candlelight/20" viewBox="0 0 48 48" fill="none">
             <path d="M24 6V42M6 24H42M11.3 11.3L36.7 36.7M36.7 11.3L11.3 36.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
@@ -44,7 +44,6 @@
                     <span class="font-extrabold text-sm tracking-tight text-white">EduCore <span class="text-candlelight">SaaS</span></span>
                 </div>
                 <span class="text-candlelight/70 text-xs">&#10022;</span>
-
                 <svg class="pointer-events-none absolute inset-x-0 -bottom-2.5 w-full h-5 overflow-visible" viewBox="0 0 256 20" preserveAspectRatio="none" fill="none">
                     <path d="M0 2Q42 14 85 2T170 2T256 2" stroke="#4572AB" stroke-width="1" stroke-opacity="0.65"/>
                     <circle cx="42" cy="8" r="2.2" fill="#DAA985"/>
@@ -95,14 +94,17 @@
                     <span>Settings</span>
                 </a>
             </div>
-
             <div class="flex items-center justify-between p-3 bg-midnight/95 border border-twilight rounded-2xl shadow-md shadow-black/30">
                 <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
-                    <div class="w-8 h-8 rounded-full bg-deepnavy border border-candlelight/50 text-candlelight font-bold flex items-center justify-center text-xs shrink-0">
-                        {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
-                    </div>
+                    @if (!empty($adminAvatar))
+                        <img src="{{ $adminAvatar }}" alt="{{ $adminName }}" class="w-8 h-8 rounded-full object-cover border border-candlelight/50 shrink-0">
+                    @else
+                        <div class="w-8 h-8 rounded-full bg-deepnavy border border-candlelight/50 text-candlelight font-bold flex items-center justify-center text-xs shrink-0">
+                            {{ $adminInitials ?? strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
+                        </div>
+                    @endif
                     <div class="min-w-0">
-                        <p class="text-xs font-bold text-white truncate">{{ session('admin_name', 'Alex Davis') }}</p>
+                        <p class="text-xs font-bold text-white truncate">{{ $adminName ?? session('admin_name', 'Alex Davis') }}</p>
                         <p class="text-[10px] text-slate-400 font-medium truncate">Administrator</p>
                     </div>
                 </div>
@@ -120,7 +122,6 @@
     <main class="relative flex-1 h-full flex flex-col min-w-0 overflow-hidden bg-midnight">
         <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.24),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.09),_transparent_60%)] z-0"></div>
         <canvas id="rightPanelSnow" class="pointer-events-none absolute inset-0 w-full h-full z-0"></canvas>
-
         <div class="pointer-events-none absolute inset-x-0 bottom-0 h-14 z-10 overflow-hidden">
             <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
                 <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.5"/>
@@ -140,11 +141,14 @@
                 <circle cx="1050" cy="9.5" r="2.6" fill="#FFF3DC"/>
                 <circle cx="1050" cy="9.5" r="6" fill="#DAA985" fill-opacity="0.22"/>
             </svg>
-
             <div class="text-xs text-slate-400 font-medium">Records / <span class="text-candlelight font-semibold">Activity Log</span></div>
-            <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-md shadow-candlelight/20 cursor-pointer">
-                {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
-            </div>
+            @if (!empty($adminAvatar))
+                <img onclick="document.getElementById('profileModal').classList.remove('hidden')" src="{{ $adminAvatar }}" alt="{{ $adminName }}" class="w-8 h-8 rounded-xl object-cover border border-candlelight/60 shadow-md cursor-pointer">
+            @else
+                <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-md shadow-candlelight/20 cursor-pointer">
+                    {{ $adminInitials ?? strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
+                </div>
+            @endif
         </header>
 
         <div class="relative z-10 flex-1 overflow-y-auto p-8 space-y-6 max-w-5xl pb-16">
@@ -186,30 +190,84 @@
         </div>
     </main>
 
-    <!-- Profile Modal -->
-    <div id="profileModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight space-y-4">
+    <!-- Admin Profile Modal -->
+    <div id="profileModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm {{ !empty($openProfileModal) ? '' : 'hidden' }} flex items-center justify-center p-4 z-50">
+        <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight space-y-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center">
-                <h3 class="text-base font-bold text-white">Account info</h3>
+                <h3 class="text-base font-bold text-white">Admin profile</h3>
                 <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="text-slate-400 hover:text-candlelight text-sm font-bold">X</button>
             </div>
-            <div class="flex items-center space-x-4 p-4 bg-midnight/85 rounded-2xl border border-twilight">
-                <div class="w-12 h-12 rounded-full bg-deepnavy border border-candlelight/40 text-candlelight font-bold flex items-center justify-center text-sm">
-                    {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
+            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                @csrf
+                <div class="flex items-center space-x-4 p-3.5 bg-midnight/85 rounded-2xl border border-twilight">
+                    <div class="w-16 h-16 rounded-2xl bg-deepnavy border border-candlelight/50 flex items-center justify-center overflow-hidden shrink-0">
+                        @if (!empty($adminAvatar))
+                            <img id="profilePreviewImg" src="{{ $adminAvatar }}" alt="Profile photo" class="w-full h-full object-cover">
+                        @else
+                            <span id="profilePreviewInitials" class="text-sm font-extrabold text-candlelight">{{ $adminInitials ?? strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}</span>
+                            <img id="profilePreviewImg" src="" alt="Profile photo" class="w-full h-full object-cover hidden">
+                        @endif
+                    </div>
+                    <div class="space-y-1.5 min-w-0">
+                        <p class="text-[11px] font-bold text-candlelight uppercase tracking-wider">Profile photo</p>
+                        <input type="file" id="avatar_photo" name="avatar_photo" accept="image/png,image/jpeg,image/webp,image/gif" onchange="previewProfilePhoto(this)" class="block w-full text-[11px] text-slate-300 file:mr-2.5 file:py-1.5 file:px-3 file:rounded-xl file:border file:border-twilight file:text-[11px] file:font-bold file:bg-midnight file:text-candlelight hover:file:bg-twilight cursor-pointer">
+                    </div>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-white">{{ session('admin_name', 'Alex Davis') }}</p>
-                    <p class="text-xs text-slate-400">{{ strtolower(str_replace(' ', '', session('admin_name', 'alex.davis'))) }}@educore.edu</p>
-                    <span class="inline-block mt-1 px-2 py-0.5 bg-deepnavy border border-candlelight/40 text-candlelight text-[10px] font-bold rounded-full">Workspace Admin</span>
+                    <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">Name</label>
+                    <input type="text" name="name" value="{{ old('name', $adminName ?? session('admin_name', 'Alex Davis')) }}" required maxlength="120" class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
                 </div>
-            </div>
-            <div class="flex justify-end pt-2">
-                <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold shadow-sm">Close</button>
-            </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">Email</label>
+                    <input type="email" name="email" value="{{ old('email', $adminEmail ?? session('admin_email', 'admin@educore.local')) }}" required maxlength="255" class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
+                </div>
+                <div class="pt-2 border-t border-twilight/80 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[11px] font-bold text-candlelight uppercase tracking-wider">Change Password</p>
+                        <span class="text-[10px] text-slate-400">Optional</span>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-300 mb-1">Current Password</label>
+                        <input type="password" name="current_password" autocomplete="current-password" placeholder="Required only when setting a new password" class="w-full px-3.5 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-300 mb-1">New Password</label>
+                            <input type="password" name="new_password" autocomplete="new-password" placeholder="Min. 8 characters" class="w-full px-3.5 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-300 mb-1">Confirm Password</label>
+                            <input type="password" name="new_password_confirmation" autocomplete="new-password" placeholder="Repeat new password" class="w-full px-3.5 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="px-4 py-2 bg-midnight text-slate-200 border border-twilight rounded-xl text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">Save profile</button>
+                </div>
+            </form>
         </div>
     </div>
 
     <script>
+        function previewProfilePhoto(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.getElementById('profilePreviewImg');
+                const initials = document.getElementById('profilePreviewInitials');
+                if (img) {
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                }
+                if (initials) {
+                    initials.classList.add('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
         (function initRightSnow() {
             const canvas = document.getElementById('rightPanelSnow');
             const panel = canvas ? canvas.parentElement : null;
