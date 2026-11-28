@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Workspace — EduCore SaaS</title>
+    <title>Create Workspace — EduCore SaaS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,11 +24,18 @@
 <body class="bg-midnight text-slate-200 font-sans antialiased min-h-screen flex items-center justify-center p-6 selection:bg-candlelight/30 selection:text-candlelight relative overflow-x-hidden">
     <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.22),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.08),_transparent_60%)] z-0"></div>
 
-    <div class="relative z-10 overflow-hidden max-w-md w-full bg-deepnavy/95 rounded-3xl border border-twilight shadow-2xl shadow-black/50 p-8 space-y-6">
+    <div class="pointer-events-none fixed inset-x-0 bottom-0 h-14 z-10 overflow-hidden">
+        <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
+            <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.45"/>
+            <path d="M0 56C320 38 620 70 960 48C1180 34 1330 62 1440 50V80H0V56Z" fill="#E8F1F8" fill-opacity="0.1"/>
+        </svg>
+    </div>
+
+    <div class="relative z-20 overflow-hidden max-w-md w-full bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md rounded-3xl border border-twilight shadow-2xl shadow-black/50 p-8 space-y-6">
         <canvas id="cardSnowRegister" class="pointer-events-none absolute inset-0 w-full h-full z-0"></canvas>
 
         <div class="relative z-10 text-center space-y-2">
-            <div class="w-10 h-10 rounded-2xl bg-midnight border border-starlight/50 mx-auto flex items-center justify-center text-candlelight shadow-sm">
+            <div class="w-10 h-10 rounded-2xl bg-midnight border border-starlight/50 mx-auto flex items-center justify-center text-candlelight shadow-md">
                 <div class="grid grid-cols-2 gap-0.5">
                     <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                     <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
@@ -36,9 +43,8 @@
                     <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                 </div>
             </div>
-            <h2 class="text-xl font-extrabold text-white">Create Workspace</h2>
-            <p class="text-xs text-slate-300">Set up your institution's EduCore SaaS portal with a Gmail account.</p>
-            <p class="text-[11px] text-candlelight/75">&#10023; Happy holidays &mdash; Winter Term Setup</p>
+            <h2 class="text-xl font-extrabold text-white">Create your workspace</h2>
+            <p class="text-xs text-slate-300">Start a student records space with your Gmail account.</p>
         </div>
 
         @if ($errors->any())
@@ -51,14 +57,14 @@
             @csrf
             <div>
                 <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
-                    Institution / Workspace Name
+                    School or Department Name
                 </label>
                 <input
                     type="text"
                     name="workspace_name"
                     required
                     maxlength="120"
-                    placeholder="Enter your institution"
+                    placeholder="e.g. BSIT Department"
                     value="{{ old('workspace_name') }}"
                     class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                 >
@@ -66,14 +72,14 @@
 
             <div>
                 <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
-                    Administrator Name
+                    Your Name
                 </label>
                 <input
                     type="text"
                     name="admin_name"
                     required
                     maxlength="120"
-                    placeholder="Enter your name"
+                    placeholder="Full name"
                     value="{{ old('admin_name') }}"
                     class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                 >
@@ -81,7 +87,7 @@
 
             <div>
                 <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
-                    Email Address (@gmail.com)
+                    Gmail Address
                 </label>
                 <input
                     type="email"
@@ -109,7 +115,7 @@
                         autocomplete="new-password"
                         minlength="8"
                         maxlength="128"
-                        placeholder="Enter password (min 8 characters)"
+                        placeholder="At least 8 characters"
                         class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner pr-10"
                     >
                     <button
@@ -137,19 +143,19 @@
                     autocomplete="new-password"
                     minlength="8"
                     maxlength="128"
-                    placeholder="Re-enter password"
+                    placeholder="Type it again"
                     class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                 >
             </div>
 
-            <button type="submit" class="w-full py-3 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-md shadow-candlelight/15">
-                Initialize Workspace
+            <button type="submit" class="w-full py-3 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-lg shadow-candlelight/20">
+                Create workspace
             </button>
         </form>
 
         <p class="relative z-10 text-center text-xs text-slate-300">
-            Already have a workspace?
-            <a href="{{ route('login') }}" class="font-bold text-candlelight hover:underline">Log In</a>
+            Already have an account?
+            <a href="{{ route('login') }}" class="font-bold text-candlelight hover:underline">Log in</a>
         </p>
     </div>
 
@@ -174,15 +180,15 @@
             const ctx = canvas.getContext('2d');
             let width = 0;
             let height = 0;
-            const flakes = Array.from({ length: 22 }, (_, idx) => ({
+            const flakes = Array.from({ length: 24 }, (_, idx) => ({
                 x: Math.random() * 450,
                 y: Math.random() * 620,
-                size: 4 + Math.random() * 4.5,
-                vy: 0.3 + Math.random() * 0.55,
-                vx: -0.2 + Math.random() * 0.4,
+                size: 4 + Math.random() * 5,
+                vy: 0.35 + Math.random() * 0.6,
+                vx: -0.25 + Math.random() * 0.5,
                 angle: Math.random() * Math.PI * 2,
                 spin: -0.01 + Math.random() * 0.02,
-                alpha: 0.35 + Math.random() * 0.35,
+                alpha: 0.4 + Math.random() * 0.35,
                 warm: idx % 6 === 0,
             }));
 
@@ -196,9 +202,21 @@
             function drawFlake(f) {
                 ctx.save();
                 ctx.translate(f.x, f.y);
+                if (f.warm) {
+                    const grad = ctx.createRadialGradient(0, 0, 0.5, 0, 0, f.size * 1.3);
+                    grad.addColorStop(0, `rgba(255, 243, 220, ${f.alpha})`);
+                    grad.addColorStop(0.55, `rgba(218, 169, 133, ${f.alpha * 0.5})`);
+                    grad.addColorStop(1, 'rgba(218, 169, 133, 0)');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, f.size * 1.3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    return;
+                }
                 ctx.rotate(f.angle);
-                ctx.strokeStyle = f.warm ? `rgba(218, 169, 133, ${f.alpha})` : `rgba(226, 239, 250, ${f.alpha})`;
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = `rgba(226, 239, 250, ${f.alpha})`;
+                ctx.lineWidth = 1.1;
                 const r = f.size;
                 for (let i = 0; i < 6; i++) {
                     ctx.save();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCore SaaS Workspace Settings</title>
+    <title>Settings — EduCore SaaS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -39,10 +39,10 @@
     @endphp
 
     <!-- Fixed Left Sidebar Navigation (No snow) -->
-    <aside class="w-64 h-full bg-deepnavy/95 border-r border-twilight flex-col justify-between hidden md:flex shrink-0 shadow-lg z-20">
+    <aside class="w-64 h-full bg-gradient-to-b from-deepnavy via-deepnavy/95 to-midnight border-r border-twilight flex-col justify-between hidden md:flex shrink-0 shadow-2xl z-20">
         <div>
             <div class="p-6 border-b border-twilight flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-xl bg-midnight border border-starlight/50 flex items-center justify-center text-candlelight shadow-sm">
+                <div class="w-8 h-8 rounded-xl bg-midnight border border-starlight/50 flex items-center justify-center text-candlelight shadow-md">
                     <div class="grid grid-cols-2 gap-0.5">
                         <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                         <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
@@ -54,19 +54,19 @@
             </div>
 
             <div class="p-4">
-                <div class="p-3 bg-midnight/85 rounded-2xl border border-twilight flex items-center justify-between text-xs shadow-sm">
+                <div class="p-3 bg-midnight/90 rounded-2xl border border-twilight flex items-center justify-between text-xs shadow-sm">
                     <div class="flex items-center space-x-2.5">
                         <div class="w-7 h-7 rounded-xl bg-deepnavy border border-starlight/40 flex items-center justify-center font-bold text-[10px] text-candlelight">EA</div>
                         <div>
                             <p class="font-bold text-white leading-tight">{{ $currentWorkspaceName }}</p>
-                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">Academic workspace</p>
+                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">Records space</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="px-4 py-2">
-                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Workspace</p>
+                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Menu</p>
                 <nav class="space-y-1">
                     <a href="{{ route('students.index') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-2xl text-slate-300 hover:bg-midnight/60 hover:text-white text-xs font-semibold transition">
                         <span>Dashboard</span>
@@ -89,7 +89,7 @@
                 </a>
             </div>
 
-            <div class="flex items-center justify-between p-3 bg-midnight/85 border border-twilight rounded-2xl shadow-sm">
+            <div class="flex items-center justify-between p-3 bg-midnight/90 border border-twilight rounded-2xl shadow-sm">
                 <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
                     <div class="w-8 h-8 rounded-full bg-deepnavy border border-candlelight/40 text-candlelight font-bold flex items-center justify-center text-xs shrink-0">
                         {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
@@ -111,32 +111,39 @@
 
     <!-- Scrollable Right Main Content Wrapper (Snow only inside right panel) -->
     <main class="relative flex-1 h-full flex flex-col min-w-0 overflow-hidden bg-midnight">
-        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(69,114,171,0.18),_transparent_60%)] z-0"></div>
+        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.22),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.08),_transparent_60%)] z-0"></div>
         <canvas id="rightPanelSnow" class="pointer-events-none absolute inset-0 w-full h-full z-0"></canvas>
 
-        <header class="relative z-10 bg-deepnavy/85 backdrop-blur-md border-b border-twilight h-16 flex items-center justify-between px-8 shrink-0">
+        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-14 z-10 overflow-hidden">
+            <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
+                <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.45"/>
+                <path d="M0 56C320 38 620 70 960 48C1180 34 1330 62 1440 50V80H0V56Z" fill="#E8F1F8" fill-opacity="0.1"/>
+            </svg>
+        </div>
+
+        <header class="relative z-10 bg-midnight/90 backdrop-blur-md border-b border-twilight h-16 flex items-center justify-between px-8 shrink-0 shadow-md shadow-black/20">
             <div class="text-xs text-slate-400 font-medium">Manage / <span class="text-candlelight font-semibold">Settings</span></div>
             <div class="flex items-center space-x-3">
-                <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-sm cursor-pointer">
+                <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-md shadow-candlelight/15 cursor-pointer">
                     {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
                 </div>
             </div>
         </header>
 
-        <div class="relative z-10 flex-1 overflow-y-auto p-6 md:p-8 space-y-6 max-w-5xl">
+        <div class="relative z-10 flex-1 overflow-y-auto p-6 md:p-8 space-y-6 max-w-5xl pb-16">
             <div>
-                <h1 class="text-2xl font-extrabold tracking-tight text-white">Workspace Settings</h1>
-                <p class="text-xs text-slate-300 mt-0.5">Configure academic parameters, validation rules, and system maintenance preferences &bull; <span class="text-candlelight/80">&#10023; Happy holidays</span></p>
+                <h1 class="text-2xl font-extrabold tracking-tight text-white">Settings</h1>
+                <p class="text-xs text-slate-300 mt-0.5">Adjust your workspace name, grading scale, ID format, and CSV export.</p>
             </div>
 
             @if (session('success'))
-                <div class="p-4 bg-deepnavy/95 border border-starlight/50 text-candlelight text-xs font-bold rounded-2xl shadow-sm">
+                <div class="p-4 bg-deepnavy/95 border border-starlight/50 text-candlelight text-xs font-bold rounded-2xl shadow-lg">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if ($errors->any())
-                <div class="p-4 bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs rounded-2xl shadow-sm">
+                <div class="p-4 bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs rounded-2xl shadow-lg">
                     <ul class="list-disc pl-4 space-y-0.5">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -145,11 +152,11 @@
                 </div>
             @endif
 
-            <form action="{{ route('settings.update') }}" method="POST" class="bg-deepnavy/95 rounded-3xl border border-twilight shadow-lg p-8 space-y-8">
+            <form action="{{ route('settings.update') }}" method="POST" class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md rounded-3xl border border-twilight shadow-2xl shadow-black/30 p-8 space-y-8">
                 @csrf
 
                 <div>
-                    <h3 class="text-xs font-bold text-candlelight uppercase tracking-wider mb-4">General Configuration</h3>
+                    <h3 class="text-xs font-bold text-candlelight uppercase tracking-wider mb-4">Workspace &amp; Term</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Workspace Name</label>
@@ -157,7 +164,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Active Term / Academic Year</label>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Current Term</label>
                             <select name="academic_term" class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white font-medium shadow-inner focus:outline-none">
                                 @if (!in_array($currentTerm, $termOptions, true))
                                     <option value="{{ $currentTerm }}" selected>{{ $currentTerm }}</option>
@@ -173,10 +180,10 @@
                 </div>
 
                 <div class="pt-6 border-t border-twilight">
-                    <h3 class="text-xs font-bold text-candlelight uppercase tracking-wider mb-4">Grading &amp; Analytics Scale</h3>
+                    <h3 class="text-xs font-bold text-candlelight uppercase tracking-wider mb-4">Grades &amp; Student IDs</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">GPA Scale System</label>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">GPA Scale</label>
                             <select name="gpa_scale" class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white font-medium shadow-inner focus:outline-none">
                                 <option value="3.00" {{ old('gpa_scale', $currentScale) === '3.00' ? 'selected' : '' }}>3.00 Scale</option>
                                 <option value="4.00" {{ old('gpa_scale', $currentScale) === '4.00' ? 'selected' : '' }}>4.00 Scale</option>
@@ -185,28 +192,28 @@
                         </div>
 
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Default Student ID Prefix</label>
+                            <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1">Student ID Prefix</label>
                             <input type="text" name="student_id_prefix" value="{{ old('student_id_prefix', $currentPrefix) }}" required class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white shadow-inner focus:outline-none focus:ring-2 focus:ring-candlelight/40">
                         </div>
                     </div>
                 </div>
 
                 <div class="pt-6 border-t border-twilight">
-                    <h3 class="text-xs font-bold text-candlelight uppercase tracking-wider mb-4">Data Integrity &amp; Validation</h3>
+                    <h3 class="text-xs font-bold text-candlelight uppercase tracking-wider mb-4">Record Rules &amp; History</h3>
                     <div class="space-y-4">
                         <label class="flex items-start space-x-3 cursor-pointer">
                             <input type="checkbox" name="data_integrity" value="1" {{ old('data_integrity', $dataIntegrityOn) ? 'checked' : '' }} class="mt-0.5 rounded border-twilight bg-midnight text-candlelight focus:ring-candlelight/40">
                             <div>
-                                <p class="text-xs font-bold text-white">Strict Duplicate Record &amp; GPA Integrity</p>
-                                <p class="text-[11px] text-slate-400">Enforce unique student IDs per workspace and validate GPA bounds.</p>
+                                <p class="text-xs font-bold text-white">Block duplicate IDs and out-of-range GPAs</p>
+                                <p class="text-[11px] text-slate-400">Make sure every student ID is unique and GPAs stay inside your chosen scale.</p>
                             </div>
                         </label>
 
                         <label class="flex items-start space-x-3 cursor-pointer">
                             <input type="checkbox" name="audit_telemetry" value="1" {{ old('audit_telemetry', $auditTelemetryOn) ? 'checked' : '' }} class="mt-0.5 rounded border-twilight bg-midnight text-candlelight focus:ring-candlelight/40">
                             <div>
-                                <p class="text-xs font-bold text-white">Automated Activity Telemetry Logging</p>
-                                <p class="text-[11px] text-slate-400">Record CRUD executions and settings updates in the activity log.</p>
+                                <p class="text-xs font-bold text-white">Keep a log of edits and deletions</p>
+                                <p class="text-[11px] text-slate-400">Save a trail in Actions whenever records or settings change.</p>
                             </div>
                         </label>
                     </div>
@@ -214,17 +221,17 @@
 
                 <div class="pt-6 border-t border-twilight flex items-center justify-between">
                     <div>
-                        <h3 class="text-xs font-bold text-candlelight uppercase tracking-wider">Data Maintenance</h3>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Export active student records as a formatted CSV report.</p>
+                        <h3 class="text-xs font-bold text-candlelight uppercase tracking-wider">Backup &amp; Spreadsheets</h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Download a CSV copy of your student list anytime.</p>
                     </div>
                     <a href="{{ Route::has('settings.export.csv') ? route('settings.export.csv') : url('/settings/export-csv') }}" class="px-4 py-2 bg-midnight hover:bg-twilight border border-twilight rounded-xl text-xs font-semibold text-candlelight transition shadow-sm">
-                        Export CSV
+                        Download CSV
                     </a>
                 </div>
 
                 <div class="pt-6 border-t border-twilight flex justify-end">
-                    <button type="submit" class="px-6 py-3 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">
-                        Save Changes
+                    <button type="submit" class="px-6 py-3 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-lg shadow-candlelight/20">
+                        Save settings
                     </button>
                 </div>
             </form>
@@ -235,7 +242,7 @@
     <div id="profileModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight space-y-4">
             <div class="flex justify-between items-center">
-                <h3 class="text-base font-bold text-white">Admin Profile &amp; Session</h3>
+                <h3 class="text-base font-bold text-white">Account info</h3>
                 <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="text-slate-400 hover:text-candlelight text-sm font-bold">X</button>
             </div>
             <div class="flex items-center space-x-4 p-4 bg-midnight/85 rounded-2xl border border-twilight">
@@ -245,14 +252,14 @@
                 <div>
                     <p class="text-sm font-bold text-white">{{ session('admin_name', 'Alex Davis') }}</p>
                     <p class="text-xs text-slate-400">Administrator</p>
-                    <span class="inline-block mt-1 px-2 py-0.5 bg-deepnavy border border-candlelight/40 text-candlelight text-[10px] font-bold rounded-full">System Administrator</span>
+                    <span class="inline-block mt-1 px-2 py-0.5 bg-deepnavy border border-candlelight/40 text-candlelight text-[10px] font-bold rounded-full">Workspace Admin</span>
                 </div>
             </div>
             <div class="flex items-center justify-between pt-2 border-t border-twilight">
                 <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="px-4 py-2 bg-rose-950/60 text-rose-200 border border-rose-500/40 hover:bg-rose-900/70 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-sm">
-                        <span>Log Out</span>
+                        <span>Log out</span>
                     </button>
                 </form>
                 <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold shadow-sm">Close</button>
@@ -268,15 +275,15 @@
             const ctx = canvas.getContext('2d');
             let width = 0;
             let height = 0;
-            const flakes = Array.from({ length: 34 }, (_, idx) => ({
+            const flakes = Array.from({ length: 42 }, (_, idx) => ({
                 x: Math.random() * 1200,
                 y: Math.random() * 900,
-                size: 4 + Math.random() * 5,
-                vy: 0.35 + Math.random() * 0.65,
-                vx: -0.25 + Math.random() * 0.5,
+                size: 4 + Math.random() * 5.5,
+                vy: 0.4 + Math.random() * 0.7,
+                vx: -0.3 + Math.random() * 0.6,
                 angle: Math.random() * Math.PI * 2,
-                spin: -0.01 + Math.random() * 0.02,
-                alpha: 0.35 + Math.random() * 0.35,
+                spin: -0.012 + Math.random() * 0.024,
+                alpha: 0.45 + Math.random() * 0.35,
                 warm: idx % 7 === 0,
             }));
 
@@ -290,8 +297,20 @@
             function drawFlake(f) {
                 ctx.save();
                 ctx.translate(f.x, f.y);
+                if (f.warm) {
+                    const grad = ctx.createRadialGradient(0, 0, 0.5, 0, 0, f.size * 1.35);
+                    grad.addColorStop(0, `rgba(255, 243, 220, ${f.alpha})`);
+                    grad.addColorStop(0.55, `rgba(218, 169, 133, ${f.alpha * 0.5})`);
+                    grad.addColorStop(1, 'rgba(218, 169, 133, 0)');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, f.size * 1.35, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    return;
+                }
                 ctx.rotate(f.angle);
-                ctx.strokeStyle = f.warm ? `rgba(218, 169, 133, ${f.alpha})` : `rgba(226, 239, 250, ${f.alpha})`;
+                ctx.strokeStyle = `rgba(226, 239, 250, ${f.alpha})`;
                 ctx.lineWidth = 1.1;
                 const r = f.size;
                 for (let i = 0; i < 6; i++) {

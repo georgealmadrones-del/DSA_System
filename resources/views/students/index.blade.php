@@ -30,7 +30,7 @@
 
     <!-- Mobile Sidebar Overlay Drawer -->
     <div id="mobileSidebar" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 hidden md:hidden flex">
-        <div class="w-64 h-full bg-deepnavy border-r border-twilight flex flex-col justify-between shadow-xl p-4">
+        <div class="w-64 h-full bg-deepnavy border-r border-twilight flex flex-col justify-between shadow-2xl p-4">
             <div>
                 <div class="flex items-center justify-between pb-4 border-b border-twilight">
                     <div class="flex items-center space-x-3">
@@ -48,19 +48,19 @@
                 </div>
 
                 <div class="py-4">
-                    <div class="p-3 bg-midnight/85 rounded-2xl border border-twilight flex items-center justify-between text-xs shadow-sm">
+                    <div class="p-3 bg-gradient-to-b from-midnight to-deepnavy/70 rounded-2xl border border-twilight flex items-center justify-between text-xs shadow-sm">
                         <div class="flex items-center space-x-2.5">
                             <div class="w-7 h-7 rounded-xl bg-deepnavy border border-starlight/40 flex items-center justify-center font-bold text-[10px] text-candlelight">EA</div>
                             <div>
                                 <p class="font-bold text-white leading-tight">{{ $settings['workspace_name'] ?? session('workspace_name', 'EduCore Workspace') }}</p>
-                                <p class="text-[10px] text-slate-400 font-medium mt-0.5">Academic workspace</p>
+                                <p class="text-[10px] text-slate-400 font-medium mt-0.5">Records space</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <nav class="space-y-1">
-                    <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Workspace</p>
+                    <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Menu</p>
                     <a href="{{ route('students.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-2xl bg-midnight text-candlelight font-bold text-xs border border-starlight/50 shadow-sm">
                         <div class="flex items-center space-x-3">
                             <span class="w-1.5 h-1.5 rounded-full bg-candlelight"></span>
@@ -84,7 +84,7 @@
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="w-full py-2.5 bg-rose-950/70 text-rose-200 border border-rose-500/40 rounded-xl text-xs font-bold hover:bg-rose-900/70 transition flex items-center justify-center space-x-2">
-                        <span>Log Out</span>
+                        <span>Log out</span>
                     </button>
                 </form>
             </div>
@@ -92,10 +92,10 @@
     </div>
 
     <!-- Fixed Desktop Left Sidebar Navigation (No snow) -->
-    <aside class="w-64 h-full bg-deepnavy/95 border-r border-twilight flex-col justify-between hidden md:flex shrink-0 shadow-lg z-20">
+    <aside class="w-64 h-full bg-gradient-to-b from-deepnavy via-deepnavy/95 to-midnight border-r border-twilight flex-col justify-between hidden md:flex shrink-0 shadow-2xl z-20">
         <div>
             <div class="p-6 border-b border-twilight flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-xl bg-midnight border border-starlight/50 flex items-center justify-center text-candlelight shadow-sm">
+                <div class="w-8 h-8 rounded-xl bg-midnight border border-starlight/50 flex items-center justify-center text-candlelight shadow-md">
                     <div class="grid grid-cols-2 gap-0.5">
                         <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                         <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
@@ -107,19 +107,19 @@
             </div>
 
             <div class="p-4">
-                <div class="p-3 bg-midnight/85 rounded-2xl border border-twilight flex items-center justify-between text-xs shadow-sm">
+                <div class="p-3 bg-midnight/90 rounded-2xl border border-twilight flex items-center justify-between text-xs shadow-sm">
                     <div class="flex items-center space-x-2.5">
                         <div class="w-7 h-7 rounded-xl bg-deepnavy border border-starlight/40 flex items-center justify-center font-bold text-[10px] text-candlelight">EA</div>
                         <div>
                             <p class="font-bold text-white leading-tight">{{ $settings['workspace_name'] ?? session('workspace_name', 'EduCore Workspace') }}</p>
-                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">Academic workspace</p>
+                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">Records space</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="px-4 py-2">
-                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Workspace</p>
+                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Menu</p>
                 <nav class="space-y-1">
                     <a href="{{ route('students.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-2xl bg-midnight text-candlelight font-bold text-xs border border-starlight/50 shadow-sm">
                         <div class="flex items-center space-x-3">
@@ -148,7 +148,7 @@
                 </a>
             </div>
 
-            <div class="flex items-center justify-between p-3 bg-midnight/85 border border-twilight rounded-2xl shadow-sm">
+            <div class="flex items-center justify-between p-3 bg-midnight/90 border border-twilight rounded-2xl shadow-sm">
                 <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
                     <div class="w-8 h-8 rounded-full bg-deepnavy border border-candlelight/40 text-candlelight font-bold flex items-center justify-center text-xs shrink-0">
                         {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
@@ -170,35 +170,42 @@
 
     <!-- Scrollable Right Main Content Wrapper (Snow only inside right panel) -->
     <main class="relative flex-1 h-full flex flex-col min-w-0 overflow-hidden bg-midnight">
-        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(69,114,171,0.18),_transparent_60%)] z-0"></div>
+        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.22),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.08),_transparent_60%)] z-0"></div>
         <canvas id="rightPanelSnow" class="pointer-events-none absolute inset-0 w-full h-full z-0"></canvas>
 
-        <header class="relative z-10 bg-deepnavy/85 backdrop-blur-md border-b border-twilight h-16 flex items-center justify-between px-6 shrink-0">
+        <!-- Bottom Moonlit Snowdrift inside Right Panel -->
+        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-14 z-10 overflow-hidden">
+            <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
+                <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.45"/>
+                <path d="M0 56C320 38 620 70 960 48C1180 34 1330 62 1440 50V80H0V56Z" fill="#E8F1F8" fill-opacity="0.1"/>
+            </svg>
+        </div>
+
+        <header class="relative z-10 bg-midnight/90 backdrop-blur-md border-b border-twilight h-16 flex items-center justify-between px-6 shrink-0 shadow-md shadow-black/20">
             <div class="flex items-center space-x-3">
-                <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-2 text-candlelight hover:bg-midnight rounded-xl transition">
+                <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-2 text-candlelight hover:bg-deepnavy rounded-xl transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
-                <div class="text-xs text-slate-400 font-medium">Workspace / <span class="text-candlelight font-semibold">Dashboard</span></div>
-                <span class="hidden sm:inline text-[11px] text-candlelight/70">&bull; &#10023; Happy holidays</span>
+                <div class="text-xs text-slate-400 font-medium">Records / <span class="text-candlelight font-semibold">Dashboard</span></div>
             </div>
 
             <div class="flex items-center space-x-3">
-                <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-sm cursor-pointer">
+                <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-md shadow-candlelight/15 cursor-pointer">
                     {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
                 </div>
             </div>
         </header>
 
-        <div class="relative z-10 flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+        <div class="relative z-10 flex-1 overflow-y-auto p-4 md:p-8 space-y-6 pb-16">
             @if (session('success'))
-                <div class="p-4 bg-deepnavy/95 border border-starlight/50 rounded-2xl text-xs font-semibold text-candlelight shadow-sm">
+                <div class="p-4 bg-deepnavy/95 border border-starlight/50 rounded-2xl text-xs font-semibold text-candlelight shadow-lg">
                     {{ session('success') }}
                 </div>
             @endif
 
             @if ($errors->any())
-                <div class="p-4 bg-rose-950/70 border border-rose-500/40 rounded-2xl text-xs text-rose-200">
-                    <p class="font-bold mb-1">Please fix the following before saving:</p>
+                <div class="p-4 bg-rose-950/70 border border-rose-500/40 rounded-2xl text-xs text-rose-200 shadow-lg">
+                    <p class="font-bold mb-1">Check these details before saving:</p>
                     <ul class="list-disc pl-4 space-y-0.5">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -208,20 +215,20 @@
             @endif
 
             <!-- Greeting Banner -->
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-deepnavy/95 p-6 rounded-3xl border border-twilight shadow-lg">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-gradient-to-r from-deepnavy/95 via-deepnavy/90 to-midnight/95 backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-2xl shadow-black/30">
                 <div>
                     <p id="live-date" class="text-[10px] font-extrabold tracking-widest text-candlelight uppercase mb-1">MONDAY, MAY 26</p>
                     <h1 id="live-greeting" class="text-2xl font-extrabold tracking-tight text-white">Good morning, {{ session('admin_name', 'Alex') }}.</h1>
-                    <p class="text-xs text-slate-300 mt-0.5">Here's what's happening with your student records today &bull; <span class="text-candlelight/80">Happy holidays.</span></p>
+                    <p class="text-xs text-slate-300 mt-0.5">Keep track of enrolled students, GPAs, and course rosters.</p>
                 </div>
-                <button type="button" onclick="openAddModal()" class="mt-4 md:mt-0 px-5 py-3 bg-candlelight text-midnight rounded-2xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-md shadow-candlelight/15 flex items-center justify-center space-x-2">
+                <button type="button" onclick="openAddModal()" class="mt-4 md:mt-0 px-5 py-3 bg-candlelight text-midnight rounded-2xl text-xs font-extrabold hover:bg-[#e5ba99] transition transform hover:-translate-y-0.5 shadow-lg shadow-candlelight/20 flex items-center justify-center space-x-2">
                     <span>+ Add Student</span>
                 </button>
             </div>
 
             <!-- Metric Stats Row -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <a href="{{ route('students.directory') }}" class="bg-deepnavy/95 p-6 rounded-3xl border border-twilight shadow-lg flex flex-col justify-between hover:border-starlight transition block">
+                <a href="{{ route('students.directory') }}" class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-xl flex flex-col justify-between hover:border-starlight transition block">
                     <div>
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Total Students</span>
@@ -233,15 +240,15 @@
                             <span class="text-3xl font-extrabold text-white">{{ $totalStudents }}</span>
                             <span class="text-[11px] text-candlelight bg-midnight border border-twilight px-2.5 py-0.5 rounded-lg font-bold">Live</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1">database records</p>
+                        <p class="text-[11px] text-slate-400 mt-1">saved student profiles</p>
                     </div>
                     <div class="mt-6 pt-3 border-t border-twilight flex items-center justify-between">
-                        <span class="text-[10px] text-slate-400 font-medium">Open Student Directory</span>
+                        <span class="text-[10px] text-slate-400 font-medium">Open directory</span>
                         <span class="text-[10px] font-bold text-candlelight">View &rarr;</span>
                     </div>
                 </a>
 
-                <a href="{{ Route::has('students.gpa') ? route('students.gpa') : url('/gpa-analytics') }}" class="bg-deepnavy/95 p-6 rounded-3xl border border-twilight shadow-lg flex flex-col justify-between hover:border-starlight transition block">
+                <a href="{{ Route::has('students.gpa') ? route('students.gpa') : url('/gpa-analytics') }}" class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-xl flex flex-col justify-between hover:border-starlight transition block">
                     <div>
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Average GPA</span>
@@ -253,15 +260,15 @@
                             <span class="text-3xl font-extrabold text-candlelight">{{ number_format((float) $averageGpa, 2) }}</span>
                             <span class="text-[11px] text-candlelight bg-midnight border border-twilight px-2.5 py-0.5 rounded-lg font-bold">Live</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1">calculated mean (Scale {{ $gpaScale }})</p>
+                        <p class="text-[11px] text-slate-400 mt-1">current average ({{ $gpaScale }} scale)</p>
                     </div>
                     <div class="mt-6 pt-3 border-t border-twilight flex items-center justify-between">
-                        <span class="text-[11px] text-slate-400 font-medium">View GPA Breakdown</span>
+                        <span class="text-[11px] text-slate-400 font-medium">Grade breakdown</span>
                         <span class="text-[10px] font-bold text-candlelight">Open &rarr;</span>
                     </div>
                 </a>
 
-                <a href="{{ Route::has('students.courses') ? route('students.courses') : url('/courses') }}" class="bg-deepnavy/95 p-6 rounded-3xl border border-twilight shadow-lg flex flex-col justify-between hover:border-starlight transition block">
+                <a href="{{ Route::has('students.courses') ? route('students.courses') : url('/courses') }}" class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-xl flex flex-col justify-between hover:border-starlight transition block">
                     <div>
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Active Courses</span>
@@ -273,21 +280,21 @@
                             <span class="text-3xl font-extrabold text-white">{{ $activeCoursesCount }}</span>
                             <span class="text-[11px] text-candlelight bg-midnight border border-twilight px-2.5 py-0.5 rounded-lg font-bold">Live</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1">registered courses</p>
+                        <p class="text-[11px] text-slate-400 mt-1">courses in use</p>
                     </div>
                     <div class="mt-6 pt-3 border-t border-twilight flex items-center justify-between">
-                        <span class="text-[10px] text-slate-400 font-medium">Manage Courses</span>
+                        <span class="text-[10px] text-slate-400 font-medium">Manage courses</span>
                         <span class="text-[10px] font-bold text-candlelight">Edit / Delete &rarr;</span>
                     </div>
                 </a>
             </div>
 
             <!-- Student Directory Section -->
-            <div class="bg-deepnavy/95 rounded-3xl border border-twilight shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md rounded-3xl border border-twilight shadow-2xl shadow-black/30 overflow-hidden">
                 <div class="p-6 border-b border-twilight flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                         <h2 class="text-base font-bold text-white">Student Directory</h2>
-                        <p class="text-xs text-slate-300 mt-0.5">Manage and review all enrolled student records.</p>
+                        <p class="text-xs text-slate-300 mt-0.5">Look up students, update grades, or add new entries.</p>
                     </div>
 
                     <form method="GET" action="{{ route('students.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -300,7 +307,7 @@
                             <option value="name" {{ request('sort_by') == 'name' ? 'selected' : '' }}>Sort by Name</option>
                             <option value="gpa" {{ request('sort_by') == 'gpa' ? 'selected' : '' }}>Sort by GPA</option>
                         </select>
-                        <button type="button" onclick="openAddModal()" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">
+                        <button type="button" onclick="openAddModal()" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-md shadow-candlelight/15">
                             + Add Student
                         </button>
                     </form>
@@ -309,7 +316,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-midnight/80 border-b border-twilight text-[10px] font-bold text-candlelight uppercase tracking-wider">
+                            <tr class="bg-midnight/85 border-b border-twilight text-[10px] font-bold text-candlelight uppercase tracking-wider">
                                 <th class="py-3.5 px-4">Student ID</th>
                                 <th class="py-3.5 px-4">Full Name</th>
                                 <th class="py-3.5 px-4">Course</th>
@@ -350,7 +357,7 @@
                                             <button type="submit"
                                                 class="p-1.5 text-rose-300 hover:text-rose-200 bg-rose-950/60 hover:bg-rose-900/70 rounded-lg border border-rose-500/40 transition inline-flex items-center"
                                                 title="Delete"
-                                                onclick="return confirm('Are you sure you want to delete this record?')">
+                                                onclick="return confirm('Delete this student record?')">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </form>
@@ -358,7 +365,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-8 text-slate-400">No student records found in the database.</td>
+                                    <td colspan="6" class="text-center py-8 text-slate-400">No student records yet.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -372,7 +379,7 @@
     <div id="addModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-white">Add New Student Record</h3>
+                <h3 class="text-base font-bold text-white">Add student</h3>
                 <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-candlelight text-sm font-bold">X</button>
             </div>
             <form id="addStudentForm" action="{{ route('students.store') }}" method="POST" class="space-y-4">
@@ -383,11 +390,11 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">Full Name</label>
-                    <input type="text" name="name" value="{{ old('name') }}" required placeholder="Enter a name" class="w-full px-3 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
+                    <input type="text" name="name" value="{{ old('name') }}" required placeholder="Student name" class="w-full px-3 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">Course</label>
-                    <input type="text" name="course" value="{{ old('course', '') }}" required placeholder="Enter a course" class="w-full px-3 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
+                    <input type="text" name="course" value="{{ old('course', '') }}" required placeholder="e.g. BSIT" class="w-full px-3 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">GPA ({{ $minGpaLabel }} - {{ $gpaScale }})</label>
@@ -395,7 +402,7 @@
                 </div>
                 <div class="flex justify-end space-x-3 pt-2">
                     <button type="button" onclick="closeAddModal()" class="px-4 py-2 bg-midnight text-slate-200 border border-twilight rounded-xl text-xs font-semibold">Cancel</button>
-                    <button type="submit" id="saveRecordBtn" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">Save Record</button>
+                    <button type="submit" id="saveRecordBtn" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">Save student</button>
                 </div>
             </form>
         </div>
@@ -405,7 +412,7 @@
     <div id="editModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-bold text-white">Edit Student Record</h3>
+                <h3 class="text-base font-bold text-white">Edit student</h3>
                 <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-slate-400 hover:text-candlelight text-sm font-bold">X</button>
             </div>
             <form id="editForm" method="POST" class="space-y-4">
@@ -421,7 +428,7 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">Course</label>
-                    <input type="text" id="edit_course" name="course" required placeholder="Enter a course" class="w-full px-3 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
+                    <input type="text" id="edit_course" name="course" required placeholder="e.g. BSIT" class="w-full px-3 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner">
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">GPA ({{ $minGpaLabel }} - {{ $gpaScale }})</label>
@@ -429,7 +436,7 @@
                 </div>
                 <div class="flex justify-end space-x-3 pt-2">
                     <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="px-4 py-2 bg-midnight text-slate-200 border border-twilight rounded-xl text-xs font-semibold">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">Update Changes</button>
+                    <button type="submit" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">Save changes</button>
                 </div>
             </form>
         </div>
@@ -439,7 +446,7 @@
     <div id="profileModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight space-y-4">
             <div class="flex justify-between items-center">
-                <h3 class="text-base font-bold text-white">Admin Profile Settings</h3>
+                <h3 class="text-base font-bold text-white">Account info</h3>
                 <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="text-slate-400 hover:text-candlelight text-sm font-bold">X</button>
             </div>
             <div class="flex items-center space-x-4 p-4 bg-midnight/85 rounded-2xl border border-twilight">
@@ -449,7 +456,7 @@
                 <div>
                     <p class="text-sm font-bold text-white">{{ session('admin_name', 'Alex Davis') }}</p>
                     <p class="text-xs text-slate-400">Administrator</p>
-                    <span class="inline-block mt-1 px-2 py-0.5 bg-deepnavy border border-candlelight/40 text-candlelight text-[10px] font-bold rounded-full">System Administrator</span>
+                    <span class="inline-block mt-1 px-2 py-0.5 bg-deepnavy border border-candlelight/40 text-candlelight text-[10px] font-bold rounded-full">Workspace Admin</span>
                 </div>
             </div>
             <div class="flex justify-end pt-2">
@@ -473,7 +480,7 @@
             const saveBtn = document.getElementById('saveRecordBtn');
             if (saveBtn) {
                 saveBtn.disabled = false;
-                saveBtn.innerHTML = 'Save Record';
+                saveBtn.innerHTML = 'Save student';
             }
             document.getElementById('addModal').classList.remove('hidden');
         }
@@ -550,7 +557,7 @@
             }
         });
 
-        // Snow strictly inside right panel
+        // Snow & bokeh glints strictly inside right panel
         (function initRightSnow() {
             const canvas = document.getElementById('rightPanelSnow');
             const panel = canvas ? canvas.parentElement : null;
@@ -558,15 +565,15 @@
             const ctx = canvas.getContext('2d');
             let width = 0;
             let height = 0;
-            const flakes = Array.from({ length: 34 }, (_, idx) => ({
+            const flakes = Array.from({ length: 42 }, (_, idx) => ({
                 x: Math.random() * 1200,
                 y: Math.random() * 900,
-                size: 4 + Math.random() * 5,
-                vy: 0.35 + Math.random() * 0.65,
-                vx: -0.25 + Math.random() * 0.5,
+                size: 4 + Math.random() * 5.5,
+                vy: 0.4 + Math.random() * 0.7,
+                vx: -0.3 + Math.random() * 0.6,
                 angle: Math.random() * Math.PI * 2,
-                spin: -0.01 + Math.random() * 0.02,
-                alpha: 0.35 + Math.random() * 0.35,
+                spin: -0.012 + Math.random() * 0.024,
+                alpha: 0.45 + Math.random() * 0.35,
                 warm: idx % 7 === 0,
             }));
 
@@ -580,8 +587,20 @@
             function drawFlake(f) {
                 ctx.save();
                 ctx.translate(f.x, f.y);
+                if (f.warm) {
+                    const grad = ctx.createRadialGradient(0, 0, 0.5, 0, 0, f.size * 1.35);
+                    grad.addColorStop(0, `rgba(255, 243, 220, ${f.alpha})`);
+                    grad.addColorStop(0.55, `rgba(218, 169, 133, ${f.alpha * 0.5})`);
+                    grad.addColorStop(1, 'rgba(218, 169, 133, 0)');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, f.size * 1.35, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    return;
+                }
                 ctx.rotate(f.angle);
-                ctx.strokeStyle = f.warm ? `rgba(218, 169, 133, ${f.alpha})` : `rgba(226, 239, 250, ${f.alpha})`;
+                ctx.strokeStyle = `rgba(226, 239, 250, ${f.alpha})`;
                 ctx.lineWidth = 1.1;
                 const r = f.size;
                 for (let i = 0; i < 6; i++) {

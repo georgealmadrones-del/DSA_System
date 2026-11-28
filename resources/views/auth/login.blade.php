@@ -24,11 +24,18 @@
 <body class="bg-midnight text-slate-200 font-sans antialiased min-h-screen flex items-center justify-center p-6 selection:bg-candlelight/30 selection:text-candlelight relative overflow-x-hidden">
     <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.22),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.08),_transparent_60%)] z-0"></div>
 
-    <div class="relative z-10 overflow-hidden max-w-md w-full bg-deepnavy/95 rounded-3xl border border-twilight shadow-2xl shadow-black/50 p-8 space-y-6">
+    <div class="pointer-events-none fixed inset-x-0 bottom-0 h-14 z-10 overflow-hidden">
+        <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
+            <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.45"/>
+            <path d="M0 56C320 38 620 70 960 48C1180 34 1330 62 1440 50V80H0V56Z" fill="#E8F1F8" fill-opacity="0.1"/>
+        </svg>
+    </div>
+
+    <div class="relative z-20 overflow-hidden max-w-md w-full bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md rounded-3xl border border-twilight shadow-2xl shadow-black/50 p-8 space-y-6">
         <canvas id="cardSnowLogin" class="pointer-events-none absolute inset-0 w-full h-full z-0"></canvas>
 
         <div class="relative z-10 text-center space-y-2">
-            <div class="w-10 h-10 rounded-2xl bg-midnight border border-starlight/50 mx-auto flex items-center justify-center text-candlelight shadow-sm">
+            <div class="w-10 h-10 rounded-2xl bg-midnight border border-starlight/50 mx-auto flex items-center justify-center text-candlelight shadow-md">
                 <div class="grid grid-cols-2 gap-0.5">
                     <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                     <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
@@ -36,11 +43,10 @@
                     <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                 </div>
             </div>
-            <h2 class="text-xl font-extrabold text-white">Welcome Back</h2>
+            <h2 class="text-xl font-extrabold text-white">Sign in to EduCore</h2>
             <p class="text-xs text-slate-300">
-                Log in to your academic workspace with your <span class="font-bold text-candlelight">@gmail.com</span> email.
+                Use your <span class="font-bold text-candlelight">@gmail.com</span> account to open your records.
             </p>
-            <p class="text-[11px] text-candlelight/75">&#10023; Happy holidays &mdash; Winter Term Workspace</p>
         </div>
 
         @if (session('status'))
@@ -59,7 +65,7 @@
             @csrf
             <div>
                 <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
-                    Email Address (@gmail.com)
+                    Gmail Address
                 </label>
                 <input
                     type="email"
@@ -87,7 +93,7 @@
                         autocomplete="current-password"
                         minlength="8"
                         maxlength="128"
-                        placeholder="Enter your password"
+                        placeholder="Your password"
                         class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner pr-10"
                     >
                     <button
@@ -113,7 +119,7 @@
                         {{ old('remember') ? 'checked' : '' }}
                         class="w-3.5 h-3.5 rounded border-twilight bg-midnight text-candlelight focus:ring-candlelight/40"
                     >
-                    <span class="text-xs text-slate-300 font-medium">Remember me</span>
+                    <span class="text-xs text-slate-300 font-medium">Keep me signed in</span>
                 </label>
                 <button
                     type="button"
@@ -124,14 +130,14 @@
                 </button>
             </div>
 
-            <button type="submit" class="w-full py-3 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-md shadow-candlelight/15">
-                Log In
+            <button type="submit" class="w-full py-3 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-lg shadow-candlelight/20">
+                Log in
             </button>
         </form>
 
         <p class="relative z-10 text-center text-xs text-slate-300">
-            Don't have an institution workspace?
-            <a href="{{ route('register') }}" class="font-bold text-candlelight hover:underline">Register</a>
+            New here?
+            <a href="{{ route('register') }}" class="font-bold text-candlelight hover:underline">Create a workspace</a>
         </p>
     </div>
 
@@ -140,8 +146,8 @@
         <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight space-y-4">
             <div class="flex justify-between items-center">
                 <div>
-                    <h3 class="text-base font-bold text-white">Reset Password</h3>
-                    <p class="text-[11px] text-slate-300">Verify a 6-digit code sent to your Gmail before changing your password.</p>
+                    <h3 class="text-base font-bold text-white">Reset password</h3>
+                    <p class="text-[11px] text-slate-300">Enter the 6-digit code sent to your Gmail to set a new password.</p>
                 </div>
                 <button type="button" onclick="closeForgotModal()" class="text-slate-400 hover:text-candlelight text-sm font-bold px-2">X</button>
             </div>
@@ -162,7 +168,7 @@
                 @csrf
                 <div>
                     <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
-                        Account Email (@gmail.com)
+                        Gmail Address
                     </label>
                     <div class="flex space-x-2">
                         <input
@@ -190,7 +196,7 @@
 
                 <div>
                     <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
-                        6-Digit Verification Code
+                        6-Digit Code
                     </label>
                     <input
                         type="text"
@@ -218,7 +224,7 @@
                             autocomplete="new-password"
                             minlength="8"
                             maxlength="128"
-                            placeholder="Enter new password (min 8 characters)"
+                            placeholder="At least 8 characters"
                             class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner pr-10"
                         >
                         <button
@@ -237,7 +243,7 @@
 
                 <div>
                     <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
-                        Confirm New Password
+                        Confirm Password
                     </label>
                     <input
                         type="password"
@@ -246,7 +252,7 @@
                         autocomplete="new-password"
                         minlength="8"
                         maxlength="128"
-                        placeholder="Re-enter new password"
+                        placeholder="Type it again"
                         class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                     >
                 </div>
@@ -256,7 +262,7 @@
                         Cancel
                     </button>
                     <button type="submit" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">
-                        Update Password
+                        Save Password
                     </button>
                 </div>
             </form>
@@ -305,15 +311,15 @@
             const ctx = canvas.getContext('2d');
             let width = 0;
             let height = 0;
-            const flakes = Array.from({ length: 22 }, (_, idx) => ({
+            const flakes = Array.from({ length: 24 }, (_, idx) => ({
                 x: Math.random() * 450,
                 y: Math.random() * 520,
-                size: 4 + Math.random() * 4.5,
-                vy: 0.3 + Math.random() * 0.55,
-                vx: -0.2 + Math.random() * 0.4,
+                size: 4 + Math.random() * 5,
+                vy: 0.35 + Math.random() * 0.6,
+                vx: -0.25 + Math.random() * 0.5,
                 angle: Math.random() * Math.PI * 2,
                 spin: -0.01 + Math.random() * 0.02,
-                alpha: 0.35 + Math.random() * 0.35,
+                alpha: 0.4 + Math.random() * 0.35,
                 warm: idx % 6 === 0,
             }));
 
@@ -327,9 +333,21 @@
             function drawFlake(f) {
                 ctx.save();
                 ctx.translate(f.x, f.y);
+                if (f.warm) {
+                    const grad = ctx.createRadialGradient(0, 0, 0.5, 0, 0, f.size * 1.3);
+                    grad.addColorStop(0, `rgba(255, 243, 220, ${f.alpha})`);
+                    grad.addColorStop(0.55, `rgba(218, 169, 133, ${f.alpha * 0.5})`);
+                    grad.addColorStop(1, 'rgba(218, 169, 133, 0)');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, f.size * 1.3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                    return;
+                }
                 ctx.rotate(f.angle);
-                ctx.strokeStyle = f.warm ? `rgba(218, 169, 133, ${f.alpha})` : `rgba(226, 239, 250, ${f.alpha})`;
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = `rgba(226, 239, 250, ${f.alpha})`;
+                ctx.lineWidth = 1.1;
                 const r = f.size;
                 for (let i = 0; i < 6; i++) {
                     ctx.save();
