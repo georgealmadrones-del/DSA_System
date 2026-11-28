@@ -10,44 +10,47 @@
             theme: {
                 extend: {
                     colors: {
-                        nordic: '#2C6B8E',
-                        pine: '#718082',
-                        sage: '#A3B2B1',
-                        glacier: '#ADC6D6',
-                        frost: '#E8ECF1',
+                        midnight: '#0B1A28',
+                        deepnavy: '#102E47',
+                        twilight: '#273B5C',
+                        starlight: '#4572AB',
+                        candlelight: '#DAA985',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-frost text-pine font-sans antialiased min-h-screen flex items-center justify-center p-6 selection:bg-glacier/40">
-    <div class="relative overflow-hidden max-w-md w-full bg-white/95 rounded-3xl border border-glacier shadow-xl p-8 space-y-6">
+<body class="bg-midnight text-slate-200 font-sans antialiased min-h-screen flex items-center justify-center p-6 selection:bg-candlelight/30 selection:text-candlelight relative overflow-x-hidden">
+    <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.22),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.08),_transparent_60%)] z-0"></div>
+
+    <div class="relative z-10 overflow-hidden max-w-md w-full bg-deepnavy/95 rounded-3xl border border-twilight shadow-2xl shadow-black/50 p-8 space-y-6">
         <canvas id="cardSnowLogin" class="pointer-events-none absolute inset-0 w-full h-full z-0"></canvas>
 
         <div class="relative z-10 text-center space-y-2">
-            <div class="w-10 h-10 rounded-2xl bg-nordic mx-auto flex items-center justify-center text-white shadow-sm">
+            <div class="w-10 h-10 rounded-2xl bg-midnight border border-starlight/50 mx-auto flex items-center justify-center text-candlelight shadow-sm">
                 <div class="grid grid-cols-2 gap-0.5">
+                    <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                     <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
                     <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                    <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                    <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                 </div>
             </div>
-            <h2 class="text-xl font-extrabold text-nordic">Welcome Back</h2>
-            <p class="text-xs text-pine">
-                Log in to your academic workspace with your <span class="font-bold text-nordic">@gmail.com</span> email.
+            <h2 class="text-xl font-extrabold text-white">Welcome Back</h2>
+            <p class="text-xs text-slate-300">
+                Log in to your academic workspace with your <span class="font-bold text-candlelight">@gmail.com</span> email.
             </p>
+            <p class="text-[11px] text-candlelight/75">&#10023; Happy holidays &mdash; Winter Term Workspace</p>
         </div>
 
         @if (session('status'))
-            <div class="relative z-10 p-3 bg-frost border border-glacier text-nordic rounded-xl text-xs font-medium">
+            <div class="relative z-10 p-3 bg-midnight/90 border border-starlight/50 text-candlelight rounded-xl text-xs font-medium">
                 {{ session('status') }}
             </div>
         @endif
 
         @if ($errors->has('email') || $errors->has('password'))
-            <div class="relative z-10 p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs">
+            <div class="relative z-10 p-3 bg-rose-950/70 border border-rose-500/40 text-rose-200 rounded-xl text-xs">
                 {{ $errors->first('email') ?: $errors->first('password') }}
             </div>
         @endif
@@ -55,7 +58,7 @@
         <form action="{{ route('auth.login.store') }}" method="POST" class="relative z-10 space-y-4">
             @csrf
             <div>
-                <label class="block text-[11px] font-bold text-nordic uppercase tracking-wider mb-1">
+                <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
                     Email Address (@gmail.com)
                 </label>
                 <input
@@ -67,12 +70,12 @@
                     title="Must be a valid @gmail.com email address"
                     placeholder="name@gmail.com"
                     value="{{ old('email') }}"
-                    class="w-full px-3.5 py-2.5 bg-frost/70 border border-glacier rounded-xl text-xs text-nordic focus:outline-none focus:ring-2 focus:ring-nordic/40 shadow-inner"
+                    class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                 >
             </div>
 
             <div>
-                <label class="block text-[11px] font-bold text-nordic uppercase tracking-wider mb-1">
+                <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
                     Password
                 </label>
                 <div class="relative">
@@ -85,12 +88,12 @@
                         minlength="8"
                         maxlength="128"
                         placeholder="Enter your password"
-                        class="w-full px-3.5 py-2.5 bg-frost/70 border border-glacier rounded-xl text-xs text-nordic focus:outline-none focus:ring-2 focus:ring-nordic/40 shadow-inner pr-10"
+                        class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner pr-10"
                     >
                     <button
                         type="button"
                         onclick="togglePassword('login-password', 'login-eye-icon')"
-                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-pine hover:text-nordic transition"
+                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-candlelight transition"
                         aria-label="Toggle password visibility"
                     >
                         <svg id="login-eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,57 +111,57 @@
                         name="remember"
                         value="1"
                         {{ old('remember') ? 'checked' : '' }}
-                        class="w-3.5 h-3.5 rounded border-glacier text-nordic focus:ring-nordic/40"
+                        class="w-3.5 h-3.5 rounded border-twilight bg-midnight text-candlelight focus:ring-candlelight/40"
                     >
-                    <span class="text-xs text-pine font-medium">Remember me</span>
+                    <span class="text-xs text-slate-300 font-medium">Remember me</span>
                 </label>
                 <button
                     type="button"
                     onclick="openForgotModal()"
-                    class="text-xs font-bold text-nordic hover:underline"
+                    class="text-xs font-bold text-candlelight hover:underline"
                 >
                     Forgot password?
                 </button>
             </div>
 
-            <button type="submit" class="w-full py-3 bg-nordic text-white rounded-xl text-xs font-bold hover:bg-[#235673] transition shadow-sm">
+            <button type="submit" class="w-full py-3 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-md shadow-candlelight/15">
                 Log In
             </button>
         </form>
 
-        <p class="relative z-10 text-center text-xs text-pine">
+        <p class="relative z-10 text-center text-xs text-slate-300">
             Don't have an institution workspace?
-            <a href="{{ route('register') }}" class="font-bold text-nordic hover:underline">Register</a>
+            <a href="{{ route('register') }}" class="font-bold text-candlelight hover:underline">Register</a>
         </p>
     </div>
 
     <!-- Forgot Password Modal -->
-    <div id="forgotModal" class="fixed inset-0 bg-nordic/35 backdrop-blur-sm {{ ($errors->has('reset_email') || $errors->has('reset_code') || $errors->has('new_password') || session('open_forgot_modal')) ? '' : 'hidden' }} flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-glacier space-y-4">
+    <div id="forgotModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm {{ ($errors->has('reset_email') || $errors->has('reset_code') || $errors->has('new_password') || session('open_forgot_modal')) ? '' : 'hidden' }} flex items-center justify-center p-4 z-50">
+        <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight space-y-4">
             <div class="flex justify-between items-center">
                 <div>
-                    <h3 class="text-base font-bold text-nordic">Reset Password</h3>
-                    <p class="text-[11px] text-pine">Verify a 6-digit code sent to your Gmail before changing your password.</p>
+                    <h3 class="text-base font-bold text-white">Reset Password</h3>
+                    <p class="text-[11px] text-slate-300">Verify a 6-digit code sent to your Gmail before changing your password.</p>
                 </div>
-                <button type="button" onclick="closeForgotModal()" class="text-pine hover:text-nordic text-sm font-bold px-2">X</button>
+                <button type="button" onclick="closeForgotModal()" class="text-slate-400 hover:text-candlelight text-sm font-bold px-2">X</button>
             </div>
 
             @if (session('reset_notice'))
-                <div class="p-3 bg-frost border border-glacier text-nordic rounded-xl text-xs space-y-1">
+                <div class="p-3 bg-midnight border border-starlight/50 text-candlelight rounded-xl text-xs space-y-1">
                     <p>{{ session('reset_notice') }}</p>
                 </div>
             @endif
 
             @if ($errors->has('reset_email') || $errors->has('reset_code') || $errors->has('new_password'))
-                <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs">
+                <div class="p-3 bg-rose-950/70 border border-rose-500/40 text-rose-200 rounded-xl text-xs">
                     {{ $errors->first('reset_email') ?: ($errors->first('reset_code') ?: $errors->first('new_password')) }}
                 </div>
             @endif
 
-            <form action="{{ route('auth.password.code') }}" method="POST" class="space-y-3 pb-3 border-b border-glacier/60">
+            <form action="{{ route('auth.password.code') }}" method="POST" class="space-y-3 pb-3 border-b border-twilight">
                 @csrf
                 <div>
-                    <label class="block text-[11px] font-bold text-nordic uppercase tracking-wider mb-1">
+                    <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
                         Account Email (@gmail.com)
                     </label>
                     <div class="flex space-x-2">
@@ -172,9 +175,9 @@
                             title="Must be a valid @gmail.com email address"
                             placeholder="name@gmail.com"
                             value="{{ old('reset_email', old('email')) }}"
-                            class="flex-1 px-3.5 py-2.5 bg-frost/70 border border-glacier rounded-xl text-xs text-nordic focus:outline-none focus:ring-2 focus:ring-nordic/40 shadow-inner"
+                            class="flex-1 px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                         >
-                        <button type="submit" class="px-3.5 py-2.5 bg-frost hover:bg-glacier/40 text-nordic border border-glacier rounded-xl text-xs font-bold transition shrink-0">
+                        <button type="submit" class="px-3.5 py-2.5 bg-midnight hover:bg-twilight text-candlelight border border-twilight rounded-xl text-xs font-bold transition shrink-0">
                             Send Code
                         </button>
                     </div>
@@ -186,7 +189,7 @@
                 <input type="hidden" id="reset-email-hidden" name="reset_email" value="{{ old('reset_email', old('email')) }}">
 
                 <div>
-                    <label class="block text-[11px] font-bold text-nordic uppercase tracking-wider mb-1">
+                    <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
                         6-Digit Verification Code
                     </label>
                     <input
@@ -198,12 +201,12 @@
                         maxlength="6"
                         placeholder="123456"
                         value="{{ old('reset_code') }}"
-                        class="w-full px-3.5 py-2.5 bg-frost/70 border border-glacier rounded-xl text-xs text-nordic font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-nordic/40 shadow-inner"
+                        class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                     >
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-nordic uppercase tracking-wider mb-1">
+                    <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
                         New Password
                     </label>
                     <div class="relative">
@@ -216,12 +219,12 @@
                             minlength="8"
                             maxlength="128"
                             placeholder="Enter new password (min 8 characters)"
-                            class="w-full px-3.5 py-2.5 bg-frost/70 border border-glacier rounded-xl text-xs text-nordic focus:outline-none focus:ring-2 focus:ring-nordic/40 shadow-inner pr-10"
+                            class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner pr-10"
                         >
                         <button
                             type="button"
                             onclick="togglePassword('reset-new-password', 'reset-eye-1')"
-                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-pine hover:text-nordic transition"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-candlelight transition"
                             aria-label="Toggle new password visibility"
                         >
                             <svg id="reset-eye-1" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,7 +236,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-nordic uppercase tracking-wider mb-1">
+                    <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
                         Confirm New Password
                     </label>
                     <input
@@ -244,15 +247,15 @@
                         minlength="8"
                         maxlength="128"
                         placeholder="Re-enter new password"
-                        class="w-full px-3.5 py-2.5 bg-frost/70 border border-glacier rounded-xl text-xs text-nordic focus:outline-none focus:ring-2 focus:ring-nordic/40 shadow-inner"
+                        class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                     >
                 </div>
 
                 <div class="flex justify-end space-x-2 pt-2">
-                    <button type="button" onclick="closeForgotModal()" class="px-4 py-2 bg-frost text-nordic border border-glacier rounded-xl text-xs font-semibold">
+                    <button type="button" onclick="closeForgotModal()" class="px-4 py-2 bg-midnight text-slate-200 border border-twilight rounded-xl text-xs font-semibold">
                         Cancel
                     </button>
-                    <button type="submit" class="px-4 py-2 bg-nordic text-white rounded-xl text-xs font-bold hover:bg-[#235673] transition shadow-sm">
+                    <button type="submit" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">
                         Update Password
                     </button>
                 </div>
@@ -302,13 +305,16 @@
             const ctx = canvas.getContext('2d');
             let width = 0;
             let height = 0;
-            const flakes = Array.from({ length: 24 }, () => ({
+            const flakes = Array.from({ length: 22 }, (_, idx) => ({
                 x: Math.random() * 450,
                 y: Math.random() * 520,
-                r: 1.2 + Math.random() * 2,
+                size: 4 + Math.random() * 4.5,
                 vy: 0.3 + Math.random() * 0.55,
                 vx: -0.2 + Math.random() * 0.4,
-                alpha: 0.35 + Math.random() * 0.45,
+                angle: Math.random() * Math.PI * 2,
+                spin: -0.01 + Math.random() * 0.02,
+                alpha: 0.35 + Math.random() * 0.35,
+                warm: idx % 6 === 0,
             }));
 
             function resize() {
@@ -318,22 +324,42 @@
             resize();
             window.addEventListener('resize', resize);
 
+            function drawFlake(f) {
+                ctx.save();
+                ctx.translate(f.x, f.y);
+                ctx.rotate(f.angle);
+                ctx.strokeStyle = f.warm ? `rgba(218, 169, 133, ${f.alpha})` : `rgba(226, 239, 250, ${f.alpha})`;
+                ctx.lineWidth = 1;
+                const r = f.size;
+                for (let i = 0; i < 6; i++) {
+                    ctx.save();
+                    ctx.rotate((i * Math.PI) / 3);
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(0, -r);
+                    ctx.moveTo(0, -r * 0.55);
+                    ctx.lineTo(-r * 0.25, -r * 0.78);
+                    ctx.moveTo(0, -r * 0.55);
+                    ctx.lineTo(r * 0.25, -r * 0.78);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+                ctx.restore();
+            }
+
             function tick() {
                 ctx.clearRect(0, 0, width, height);
                 for (const f of flakes) {
                     f.x += f.vx;
                     f.y += f.vy;
-                    if (f.y > height) {
-                        f.y = -4;
+                    f.angle += f.spin;
+                    if (f.y - f.size > height) {
+                        f.y = -f.size * 2;
                         f.x = Math.random() * width;
                     }
-                    if (f.x < 0) f.x = width;
-                    if (f.x > width) f.x = 0;
-
-                    ctx.beginPath();
-                    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(173, 198, 214, ${f.alpha})`;
-                    ctx.fill();
+                    if (f.x + f.size < 0) f.x = width + f.size;
+                    if (f.x - f.size > width) f.x = -f.size;
+                    drawFlake(f);
                 }
                 requestAnimationFrame(tick);
             }
