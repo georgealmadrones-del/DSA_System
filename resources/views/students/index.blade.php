@@ -39,6 +39,17 @@
             ->unique()
             ->sort()
             ->values();
+
+        $authUser = \Illuminate\Support\Facades\Auth::user();
+        $adminName = session('admin_name', $authUser->admin_name ?? $authUser->name ?? 'Alex Davis');
+        $adminEmail = session('admin_email', $authUser->email ?? 'admin@educore.local');
+        $adminAvatar = session('admin_avatar', $authUser->avatar ?? null);
+        $adminInitials = strtoupper(substr($adminName, 0, 2));
+        $openProfileModal = $errors->has('name')
+            || $errors->has('email')
+            || $errors->has('avatar_photo')
+            || $errors->has('current_password')
+            || $errors->has('new_password');
     @endphp
 
     <!-- Mobile Sidebar Overlay Drawer -->
@@ -185,11 +196,15 @@
 
             <div class="flex items-center justify-between p-3 bg-midnight/95 border border-twilight rounded-2xl shadow-md shadow-black/30">
                 <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
-                    <div class="w-8 h-8 rounded-full bg-deepnavy border border-candlelight/50 text-candlelight font-bold flex items-center justify-center text-xs shrink-0">
-                        {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
-                    </div>
+                    @if ($adminAvatar)
+                        <img src="{{ $adminAvatar }}" alt="{{ $adminName }}" class="w-8 h-8 rounded-full object-cover border border-candlelight/60 shrink-0">
+                    @else
+                        <div class="w-8 h-8 rounded-full bg-deepnavy border border-candlelight/50 text-candlelight font-bold flex items-center justify-center text-xs shrink-0">
+                            {{ $adminInitials }}
+                        </div>
+                    @endif
                     <div class="min-w-0">
-                        <p class="text-xs font-bold text-white truncate">{{ session('admin_name', 'Alex Davis') }}</p>
+                        <p class="text-xs font-bold text-white truncate">{{ $adminName }}</p>
                         <p class="text-[10px] text-slate-400 font-medium truncate">Administrator</p>
                     </div>
                 </div>
@@ -240,9 +255,13 @@
                 <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full bg-deepnavy/90 border border-twilight text-[10px] font-semibold text-slate-300">
                     <span class="w-1.5 h-1.5 rounded-full bg-candlelight mr-1.5"></span> {{ $gpaScale }} Scale
                 </span>
-                <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-md shadow-candlelight/20 cursor-pointer">
-                    {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
-                </div>
+                @if ($adminAvatar)
+                    <img onclick="document.getElementById('profileModal').classList.remove('hidden')" src="{{ $adminAvatar }}" alt="{{ $adminName }}" class="w-8 h-8 rounded-xl object-cover border border-candlelight/60 shadow-md cursor-pointer">
+                @else
+                    <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-md shadow-candlelight/20 cursor-pointer">
+                        {{ $adminInitials }}
+                    </div>
+                @endif
             </div>
         </header>
 
@@ -279,7 +298,7 @@
                             <circle cx="44.5" cy="16" r="3.8" fill="#DAA985" stroke="#FFF3DC" stroke-width="1.1"/>
                             <rect x="6.5" y="31" width="27" height="6.5" rx="3.2" fill="#F8FAFC"/>
                         </svg>
-                        <span id="live-greeting" class="pl-2">Good morning, {{ session('admin_name', 'Alex') }}.</span>
+                        <span id="live-greeting" class="pl-2">Good morning, {{ $adminName }}.</span>
                     </h1>
                     <p class="text-xs text-slate-300 mt-1">Keep track of enrolled students, GPAs, and course rosters.</p>
                 </div>
@@ -516,25 +535,108 @@
     </div>
 
     <!-- Admin Profile Modal -->
-    <div id="profileModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight space-y-4">
+    <div id="profileModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm {{ $openProfileModal ? '' : 'hidden' }} flex items-center justify-center p-4 z-50">
+        <div class="bg-deepnavy rounded-3xl max-w-md w-full p-6 shadow-2xl border border-twilight space-y-5 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center">
-                <h3 class="text-base font-bold text-white">Account info</h3>
+                <h3 class="text-base font-bold text-white">Admin profile</h3>
                 <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="text-slate-400 hover:text-candlelight text-sm font-bold">X</button>
             </div>
-            <div class="flex items-center space-x-4 p-4 bg-midnight/85 rounded-2xl border border-twilight">
-                <div class="w-12 h-12 rounded-full bg-deepnavy border border-candlelight/40 text-candlelight font-bold flex items-center justify-center text-sm">
-                    {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
+
+            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                @csrf
+
+                <div class="flex items-center space-x-4 p-3.5 bg-midnight/85 rounded-2xl border border-twilight">
+                    <div class="w-16 h-16 rounded-2xl bg-deepnavy border border-candlelight/50 flex items-center justify-center overflow-hidden shrink-0">
+                        @if ($adminAvatar)
+                            <img id="profilePreviewImg" src="{{ $adminAvatar }}" alt="Profile photo" class="w-full h-full object-cover">
+                        @else
+                            <span id="profilePreviewInitials" class="text-sm font-extrabold text-candlelight">{{ $adminInitials }}</span>
+                            <img id="profilePreviewImg" src="" alt="Profile photo" class="w-full h-full object-cover hidden">
+                        @endif
+                    </div>
+                    <div class="space-y-1.5 min-w-0">
+                        <p class="text-[11px] font-bold text-candlelight uppercase tracking-wider">Profile photo</p>
+                        <input
+                            type="file"
+                            id="avatar_photo"
+                            name="avatar_photo"
+                            accept="image/png,image/jpeg,image/webp,image/gif"
+                            onchange="previewProfilePhoto(this)"
+                            class="block w-full text-[11px] text-slate-300 file:mr-2.5 file:py-1.5 file:px-3 file:rounded-xl file:border file:border-twilight file:text-[11px] file:font-bold file:bg-midnight file:text-candlelight hover:file:bg-twilight cursor-pointer"
+                        >
+                    </div>
                 </div>
+
                 <div>
-                    <p class="text-sm font-bold text-white">{{ session('admin_name', 'Alex Davis') }}</p>
-                    <p class="text-xs text-slate-400">Administrator</p>
-                    <span class="inline-block mt-1 px-2 py-0.5 bg-deepnavy border border-candlelight/40 text-candlelight text-[10px] font-bold rounded-full">Workspace Admin</span>
+                    <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        value="{{ old('name', $adminName) }}"
+                        required
+                        maxlength="120"
+                        class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
+                    >
                 </div>
-            </div>
-            <div class="flex justify-end pt-2">
-                <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold shadow-sm">Close</button>
-            </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">Email</label>
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ old('email', $adminEmail) }}"
+                        required
+                        maxlength="255"
+                        class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
+                    >
+                </div>
+
+                <div class="pt-2 border-t border-twilight/80 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <p class="text-[11px] font-bold text-candlelight uppercase tracking-wider">Change Password</p>
+                        <span class="text-[10px] text-slate-400">Optional</span>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-300 mb-1">Current Password</label>
+                        <input
+                            type="password"
+                            name="current_password"
+                            autocomplete="current-password"
+                            placeholder="Required only when setting a new password"
+                            class="w-full px-3.5 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
+                        >
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-300 mb-1">New Password</label>
+                            <input
+                                type="password"
+                                name="new_password"
+                                autocomplete="new-password"
+                                placeholder="Min. 8 characters"
+                                class="w-full px-3.5 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold text-slate-300 mb-1">Confirm Password</label>
+                            <input
+                                type="password"
+                                name="new_password_confirmation"
+                                autocomplete="new-password"
+                                placeholder="Repeat new password"
+                                class="w-full px-3.5 py-2 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="document.getElementById('profileModal').classList.add('hidden')" class="px-4 py-2 bg-midnight text-slate-200 border border-twilight rounded-xl text-xs font-semibold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-candlelight text-midnight rounded-xl text-xs font-extrabold hover:bg-[#e5ba99] transition shadow-sm">Save profile</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -543,6 +645,24 @@
 
         function toggleMobileSidebar() {
             document.getElementById('mobileSidebar').classList.toggle('hidden');
+        }
+
+        function previewProfilePhoto(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.getElementById('profilePreviewImg');
+                const initials = document.getElementById('profilePreviewInitials');
+                if (img) {
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                }
+                if (initials) {
+                    initials.classList.add('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
         }
 
         function openAddModal() {
@@ -623,7 +743,7 @@
             } else if (hours >= 18) {
                 timeGreeting = 'Good evening';
             }
-            const userName = @js(session('admin_name', 'Alex'));
+            const userName = @js($adminName);
             const greetingElement = document.getElementById('live-greeting');
             if (greetingElement) {
                 greetingElement.textContent = `${timeGreeting}, ${userName}.`;

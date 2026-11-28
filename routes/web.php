@@ -117,6 +117,12 @@ try {
         ]);
     }
 
+    if (Schema::hasTable('users') && !Schema::hasColumn('users', 'avatar')) {
+        Schema::table('users', function (Blueprint $table) {
+            $table->longText('avatar')->nullable();
+        });
+    }
+
     if (!Schema::hasTable('courses')) {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
@@ -231,6 +237,8 @@ $registerHandler = function (Request $request) {
         'user_id'        => $user->id,
         'workspace_name' => $user->workspace_name ?? $cleanWorkspaceName,
         'admin_name'     => $user->admin_name ?? $cleanAdminName,
+        'admin_email'    => $user->email,
+        'admin_avatar'   => $user->avatar ?? null,
     ]);
 
     return redirect()->route('students.index');
@@ -287,6 +295,8 @@ Route::post('/auth/login', function (Request $request) {
         'user_id'        => $loggedInUser->id,
         'workspace_name' => $loggedInUser->workspace_name ?? '',
         'admin_name'     => $loggedInUser->admin_name ?? $loggedInUser->name,
+        'admin_email'    => $loggedInUser->email,
+        'admin_avatar'   => $loggedInUser->avatar ?? null,
     ]);
 
     return redirect()->route('students.index');
@@ -472,6 +482,102 @@ Route::post('/forgot-password/reset', function (Request $request) {
         ->route('login')
         ->with('status', 'Your password has been updated. You can now log in with your new password.');
 })->name('auth.password.reset');
+
+Route::post('/profile', function (Request $request) {
+    $validated = $request->validate([
+        'name'             => ['required', 'string', 'max:120'],
+        'email'            => ['required', 'string', 'max:255', 'email:rfc'],
+        'avatar_photo'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:2048'],
+        'current_password' => ['nullable', 'string'],
+        'new_password'     => ['nullable', 'string', Password::min(8)->max(128), 'confirmed'],
+    ], [
+        'new_password.min'       => 'New password must be at least 8 characters.',
+        'new_password.confirmed' => 'New password confirmation does not match.',
+    ]);
+
+    $cleanName = trim($validated['name']);
+    $cleanEmail = Str::lower(trim($validated['email']));
+    $userId = Auth::id() ?? session('user_id');
+    $user = is_numeric($userId) ? User::find((int) $userId) : null;
+
+    $wantsPasswordChange = filled($validated['new_password'] ?? null);
+    $passwordUpdated = false;
+
+    if ($wantsPasswordChange) {
+        if (!$user) {
+            return back()
+                ->withInput($request->except(['current_password', 'new_password', 'new_password_confirmation']))
+                ->withErrors([
+                    'new_password' => 'Unable to locate an authenticated account to update the password.',
+                ]);
+        }
+
+        if (!empty($user->password)) {
+            $currentInput = (string) ($validated['current_password'] ?? '');
+            if ($currentInput === '' || !Hash::check($currentInput, (string) $user->password)) {
+                return back()
+                    ->withInput($request->except(['current_password', 'new_password', 'new_password_confirmation']))
+                    ->withErrors([
+                        'current_password' => 'Current password is incorrect.',
+                    ]);
+            }
+        }
+    }
+
+    $avatarDataUrl = session('admin_avatar') ?? ($user->avatar ?? null);
+
+    if ($request->hasFile('avatar_photo')) {
+        $file = $request->file('avatar_photo');
+        $mime = $file->getMimeType() ?: 'image/png';
+        $base64 = base64_encode(file_get_contents($file->getRealPath()));
+        $avatarDataUrl = "data:{$mime};base64,{$base64}";
+
+        if ($user && Schema::hasTable('users') && Schema::hasColumn('users', 'avatar')) {
+            $user->forceFill(['avatar' => $avatarDataUrl])->save();
+        }
+    }
+
+    if ($user) {
+        $updates = [
+            'name'  => $cleanName,
+            'email' => $cleanEmail,
+        ];
+        if (Schema::hasColumn('users', 'admin_name')) {
+            $updates['admin_name'] = $cleanName;
+        }
+        if ($wantsPasswordChange) {
+            $updates['password'] = Hash::make($validated['new_password']);
+            $updates['remember_token'] = Str::random(60);
+            $passwordUpdated = true;
+        }
+
+        $user->forceFill($updates)->save();
+
+        if ($passwordUpdated) {
+            $request->session()->regenerate();
+        }
+
+        recordAuditLog(
+            $passwordUpdated ? 'profile.password_updated' : 'profile.updated',
+            $user->id,
+            $request,
+            $passwordUpdated ? "Updated profile and password for {$cleanEmail}" : "Updated profile for {$cleanEmail}"
+        );
+    }
+
+    session([
+        'user_id'      => $user?->id ?? session('user_id'),
+        'admin_name'   => $cleanName,
+        'admin_email'  => $cleanEmail,
+        'admin_avatar' => $avatarDataUrl,
+    ]);
+
+    $message = $passwordUpdated
+        ? 'Admin profile and password updated.'
+        : 'Admin profile updated.';
+
+    return redirect()->back()->with('success', $message);
+})->name('profile.update');
 
 Route::get('/students', [StudentController::class, 'index'])->name('students.index');
 Route::get('/directory', [StudentController::class, 'directory'])->name('students.directory');
