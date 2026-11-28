@@ -97,23 +97,29 @@
                     <tbody class="divide-y divide-twilight/60">
                         @forelse ($courseItems as $course)
                             @php
-                                $courseName = is_array($course) ? ($course['name'] ?? '') : ($course->name ?? '');
+                                $courseName = is_string($course)
+                                    ? $course
+                                    : (is_array($course)
+                                        ? ($course['course'] ?? $course['name'] ?? $course['course_name'] ?? $course['title'] ?? '')
+                                        : ($course->course ?? $course->name ?? $course->course_name ?? $course->title ?? ''));
+
                                 $studentCount = is_array($course)
-                                    ? ($course['students_count'] ?? $course['student_count'] ?? 0)
-                                    : ($course->students_count ?? $course->student_count ?? 0);
+                                    ? ($course['students_count'] ?? $course['student_count'] ?? $course['students'] ?? 0)
+                                    : (is_object($course) ? ($course->students_count ?? $course->student_count ?? $course->students ?? 0) : 0);
+
                                 $avgGpa = is_array($course)
-                                    ? ($course['average_gpa'] ?? $course['avg_gpa'] ?? '0.00')
-                                    : ($course->average_gpa ?? $course->avg_gpa ?? '0.00');
+                                    ? ($course['average_gpa'] ?? $course['avg_gpa'] ?? $course['gpa'] ?? '0.00')
+                                    : (is_object($course) ? ($course->average_gpa ?? $course->avg_gpa ?? $course->gpa ?? '0.00') : '0.00');
                             @endphp
                             <tr class="hover:bg-midnight/55 transition">
                                 <td class="py-4 px-6">
                                     <form action="{{ Route::has('courses.rename') ? route('courses.rename') : url('/courses/rename') }}" method="POST" class="flex items-center gap-2 max-w-xs">
                                         @csrf
                                         @method('PUT')
-                                        <input type="hidden" name="old_name" value="{{ $courseName }}">
+                                        <input type="hidden" name="old_course" value="{{ $courseName }}">
                                         <input
                                             type="text"
-                                            name="new_name"
+                                            name="new_course"
                                             value="{{ $courseName }}"
                                             required
                                             maxlength="60"
@@ -130,6 +136,7 @@
                                     <form action="{{ Route::has('courses.delete') ? route('courses.delete') : url('/courses/delete') }}" method="POST" class="inline" onsubmit="return confirm('Delete this course?')">
                                         @csrf
                                         @method('DELETE')
+                                        <input type="hidden" name="course" value="{{ $courseName }}">
                                         <input type="hidden" name="name" value="{{ $courseName }}">
                                         <button type="submit" class="px-3 py-1.5 bg-rose-950/60 hover:bg-rose-900/70 text-rose-200 border border-rose-500/40 rounded-xl text-[11px] font-bold transition">
                                             Delete
