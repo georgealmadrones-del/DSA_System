@@ -29,6 +29,8 @@
         $gpaBarPct = min(100, max(6, round(($avgGpaNum / $maxScaleNum) * 100)));
         $minGpaLabel = !empty($settings['data_integrity']) ? '1.00' : '0.00';
         $defaultStudentId = $nextStudentId ?? (($settings['student_id_prefix'] ?? 'STU-') . '0001');
+        $rawTerm = $settings['academic_term'] ?? 'Current Term';
+        $displayTerm = str_replace('AY 2026-2027', 'SY 2026-2027', $rawTerm);
     @endphp
 
     <!-- Mobile Sidebar Overlay Drawer -->
@@ -94,9 +96,8 @@
         </div>
     </div>
 
-    <!-- Fixed Desktop Left Sidebar Navigation (Layered dark midnight + ornament accents, no snow) -->
+    <!-- Fixed Desktop Left Sidebar Navigation -->
     <aside class="relative w-64 h-full bg-gradient-to-b from-[#0E2438] via-deepnavy to-[#091622] border-r border-twilight/90 flex-col justify-between hidden md:flex shrink-0 shadow-2xl z-20 overflow-hidden">
-        <!-- Subtle top starlight sheen & winter corner ornament -->
         <div class="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,_rgba(218,169,133,0.14),_transparent_70%)]"></div>
         <svg class="pointer-events-none absolute top-16 right-3 w-12 h-12 text-candlelight/20" viewBox="0 0 48 48" fill="none">
             <path d="M24 6V42M6 24H42M11.3 11.3L36.7 36.7M36.7 11.3L11.3 36.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
@@ -104,7 +105,6 @@
         </svg>
 
         <div class="relative z-10">
-            <!-- Brand Header + Delicate Garland Line -->
             <div class="relative p-6 border-b border-twilight/80 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-8 h-8 rounded-xl bg-midnight border border-starlight/60 flex items-center justify-center text-candlelight shadow-md shadow-black/30">
@@ -130,20 +130,18 @@
                 </svg>
             </div>
 
-            <!-- Workspace Card -->
             <div class="p-4 pt-5">
                 <div class="p-3 bg-midnight/90 rounded-2xl border border-twilight/90 flex items-center justify-between text-xs shadow-inner shadow-black/30">
                     <div class="flex items-center space-x-2.5 min-w-0">
                         <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-deepnavy to-midnight border border-candlelight/40 flex items-center justify-center font-extrabold text-[10px] text-candlelight shrink-0">EA</div>
                         <div class="min-w-0">
                             <p class="font-bold text-white leading-tight truncate">{{ $settings['workspace_name'] ?? session('workspace_name', 'EduCore Workspace') }}</p>
-                            <p class="text-[10px] text-slate-400 font-medium mt-0.5 truncate">{{ $settings['academic_term'] ?? 'Records space' }}</p>
+                            <p class="text-[10px] text-slate-400 font-medium mt-0.5 truncate">{{ $displayTerm }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Navigation -->
             <div class="px-4 py-2">
                 <div class="flex items-center justify-between px-3 mb-2">
                     <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Menu</p>
@@ -169,7 +167,6 @@
             </div>
         </div>
 
-        <!-- Bottom Manage & Admin Card -->
         <div class="relative z-10 p-4 border-t border-twilight/80 bg-midnight/35 space-y-4">
             <div class="px-2">
                 <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Manage</p>
@@ -190,7 +187,7 @@
                 </div>
                 <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
-                    <button type="submit" title="Log Out" class="p-1.5 text-slate-400 hover:text-rose-300 hover:bg-rose-950/50 rounded-xl transition shrink-0 ml-2">
+                    <button type="submit" title="Log out" class="p-1.5 text-slate-400 hover:text-rose-300 hover:bg-rose-950/50 rounded-xl transition shrink-0 ml-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                     </button>
                 </form>
@@ -198,12 +195,11 @@
         </div>
     </aside>
 
-    <!-- Scrollable Right Main Content Wrapper (Snow only inside right panel) -->
+    <!-- Scrollable Right Main Content Wrapper -->
     <main class="relative flex-1 h-full flex flex-col min-w-0 overflow-hidden bg-midnight">
         <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.24),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.09),_transparent_60%)] z-0"></div>
         <canvas id="rightPanelSnow" class="pointer-events-none absolute inset-0 w-full h-full z-0"></canvas>
 
-        <!-- Bottom Moonlit Snowdrift inside Right Panel -->
         <div class="pointer-events-none absolute inset-x-0 bottom-0 h-14 z-10 overflow-hidden">
             <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
                 <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.5"/>
@@ -266,7 +262,7 @@
                     <div class="inline-flex items-center space-x-2 mb-1.5">
                         <span id="live-date" class="text-[10px] font-extrabold tracking-widest text-candlelight uppercase">MONDAY, MAY 26</span>
                         <span class="text-slate-600">&bull;</span>
-                        <span class="text-[10px] font-semibold text-slate-400">{{ $settings['academic_term'] ?? 'Current Term' }}</span>
+                        <span class="text-[10px] font-semibold text-slate-400">{{ $displayTerm }}</span>
                     </div>
                     <h1 class="relative inline-block text-2xl md:text-3xl font-extrabold tracking-tight text-white">
                         <svg class="w-7 h-7 md:w-8 md:h-8 absolute -top-4 -left-4 -rotate-12 pointer-events-none drop-shadow" viewBox="0 0 48 48" fill="none">
@@ -618,7 +614,6 @@
             }
         });
 
-        // Snow & bokeh glints strictly inside right panel
         (function initRightSnow() {
             const canvas = document.getElementById('rightPanelSnow');
             const panel = canvas ? canvas.parentElement : null;

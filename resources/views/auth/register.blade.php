@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Workspace — EduCore SaaS</title>
+    <title>Create Workspace - EduCore SaaS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -21,21 +21,27 @@
         }
     </script>
 </head>
-<body class="bg-midnight text-slate-200 font-sans antialiased min-h-screen flex items-center justify-center p-6 selection:bg-candlelight/30 selection:text-candlelight relative overflow-x-hidden">
-    <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.22),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.08),_transparent_60%)] z-0"></div>
+<body class="bg-midnight text-slate-200 font-sans antialiased min-h-screen flex items-center justify-center p-6 relative overflow-hidden selection:bg-candlelight/30 selection:text-candlelight">
+    <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.26),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.1),_transparent_60%)] z-0"></div>
+    <canvas id="winterCanvas" class="pointer-events-none fixed inset-0 w-full h-full z-0"></canvas>
 
-    <div class="pointer-events-none fixed inset-x-0 bottom-0 h-14 z-10 overflow-hidden">
+    <div class="pointer-events-none fixed inset-x-0 bottom-0 h-14 z-0 overflow-hidden">
         <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
-            <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.45"/>
-            <path d="M0 56C320 38 620 70 960 48C1180 34 1330 62 1440 50V80H0V56Z" fill="#E8F1F8" fill-opacity="0.1"/>
+            <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.5"/>
+            <path d="M0 56C320 38 620 70 960 48C1180 34 1330 62 1440 50V80H0V56Z" fill="#E8F1F8" fill-opacity="0.12"/>
         </svg>
     </div>
 
-    <div class="relative z-20 overflow-hidden max-w-md w-full bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md rounded-3xl border border-twilight shadow-2xl shadow-black/50 p-8 space-y-6">
-        <canvas id="cardSnowRegister" class="pointer-events-none absolute inset-0 w-full h-full z-0"></canvas>
+    <div class="relative z-10 max-w-md w-full bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md rounded-3xl border border-twilight shadow-2xl shadow-black/45 p-8 space-y-6">
+        <svg class="pointer-events-none absolute inset-x-6 -top-2.5 h-5 overflow-visible" viewBox="0 0 400 20" preserveAspectRatio="none" fill="none">
+            <path d="M0 2Q66 15 133 2T266 2T400 2" stroke="#4572AB" stroke-width="1" stroke-opacity="0.65"/>
+            <circle cx="66" cy="9.5" r="2.2" fill="#DAA985"/>
+            <circle cx="200" cy="9.5" r="2.2" fill="#FFF3DC"/>
+            <circle cx="333" cy="9.5" r="2.2" fill="#DAA985"/>
+        </svg>
 
-        <div class="relative z-10 text-center space-y-2">
-            <div class="w-10 h-10 rounded-2xl bg-midnight border border-starlight/50 mx-auto flex items-center justify-center text-candlelight shadow-md">
+        <div class="text-center space-y-2 pt-1">
+            <div class="w-10 h-10 rounded-2xl bg-midnight border border-starlight/60 mx-auto flex items-center justify-center text-candlelight shadow-md">
                 <div class="grid grid-cols-2 gap-0.5">
                     <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
                     <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
@@ -44,27 +50,27 @@
                 </div>
             </div>
             <h2 class="text-xl font-extrabold text-white">Create your workspace</h2>
-            <p class="text-xs text-slate-300">Start a student records space with your Gmail account.</p>
+            <p class="text-xs text-slate-300">Start your EduCore records space with a Gmail account.</p>
         </div>
 
         @if ($errors->any())
-            <div class="relative z-10 p-3 bg-rose-950/70 border border-rose-500/40 text-rose-200 rounded-xl text-xs">
+            <div class="p-3 bg-rose-950/70 border border-rose-500/40 text-rose-200 rounded-xl text-xs">
                 {{ $errors->first() }}
             </div>
         @endif
 
-        <form action="{{ route('auth.register.store') }}" method="POST" class="relative z-10 space-y-4">
+        <form action="{{ route('auth.register.store') }}" method="POST" class="space-y-4">
             @csrf
             <div>
                 <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
-                    School or Department Name
+                    School or Workspace Name
                 </label>
                 <input
                     type="text"
                     name="workspace_name"
                     required
                     maxlength="120"
-                    placeholder="e.g. BSIT Department"
+                    placeholder="e.g. Rizal Memorial College"
                     value="{{ old('workspace_name') }}"
                     class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                 >
@@ -87,7 +93,7 @@
 
             <div>
                 <label class="block text-[11px] font-bold text-candlelight uppercase tracking-wider mb-1">
-                    Gmail Address
+                    Email (@gmail.com)
                 </label>
                 <input
                     type="email"
@@ -95,7 +101,7 @@
                     required
                     autocomplete="email"
                     pattern="^[A-Za-z0-9._%+-]+@gmail\.com$"
-                    title="Must be a valid @gmail.com email address"
+                    title="Use a valid @gmail.com email address"
                     placeholder="name@gmail.com"
                     value="{{ old('email') }}"
                     class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
@@ -143,7 +149,7 @@
                     autocomplete="new-password"
                     minlength="8"
                     maxlength="128"
-                    placeholder="Type it again"
+                    placeholder="Type password again"
                     class="w-full px-3.5 py-2.5 bg-midnight/85 border border-twilight rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-candlelight/40 shadow-inner"
                 >
             </div>
@@ -153,7 +159,7 @@
             </button>
         </form>
 
-        <p class="relative z-10 text-center text-xs text-slate-300">
+        <p class="text-center text-xs text-slate-400">
             Already have an account?
             <a href="{{ route('login') }}" class="font-bold text-candlelight hover:underline">Log in</a>
         </p>
@@ -173,80 +179,37 @@
             }
         }
 
-        (function initCardSnow() {
-            const canvas = document.getElementById('cardSnowRegister');
-            const card = canvas ? canvas.parentElement : null;
-            if (!canvas || !card) return;
+        (function initSnow() {
+            const canvas = document.getElementById('winterCanvas');
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
-            let width = 0;
-            let height = 0;
-            const flakes = Array.from({ length: 24 }, (_, idx) => ({
-                x: Math.random() * 450,
-                y: Math.random() * 620,
-                size: 4 + Math.random() * 5,
-                vy: 0.35 + Math.random() * 0.6,
-                vx: -0.25 + Math.random() * 0.5,
-                angle: Math.random() * Math.PI * 2,
-                spin: -0.01 + Math.random() * 0.02,
-                alpha: 0.4 + Math.random() * 0.35,
-                warm: idx % 6 === 0,
+            let w = 0, h = 0;
+            const flakes = Array.from({ length: 36 }, (_, i) => ({
+                x: Math.random() * 1400, y: Math.random() * 900,
+                size: 4 + Math.random() * 5, vy: 0.4 + Math.random() * 0.6,
+                vx: -0.25 + Math.random() * 0.5, angle: Math.random() * Math.PI * 2,
+                spin: -0.01 + Math.random() * 0.02, alpha: 0.4 + Math.random() * 0.35,
+                warm: i % 7 === 0,
             }));
-
-            function resize() {
-                width = canvas.width = card.clientWidth;
-                height = canvas.height = card.clientHeight;
-            }
+            function resize() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
             resize();
             window.addEventListener('resize', resize);
-
-            function drawFlake(f) {
-                ctx.save();
-                ctx.translate(f.x, f.y);
-                if (f.warm) {
-                    const grad = ctx.createRadialGradient(0, 0, 0.5, 0, 0, f.size * 1.3);
-                    grad.addColorStop(0, `rgba(255, 243, 220, ${f.alpha})`);
-                    grad.addColorStop(0.55, `rgba(218, 169, 133, ${f.alpha * 0.5})`);
-                    grad.addColorStop(1, 'rgba(218, 169, 133, 0)');
-                    ctx.fillStyle = grad;
-                    ctx.beginPath();
-                    ctx.arc(0, 0, f.size * 1.3, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
-                    return;
-                }
-                ctx.rotate(f.angle);
-                ctx.strokeStyle = `rgba(226, 239, 250, ${f.alpha})`;
-                ctx.lineWidth = 1.1;
-                const r = f.size;
-                for (let i = 0; i < 6; i++) {
-                    ctx.save();
-                    ctx.rotate((i * Math.PI) / 3);
-                    ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(0, -r);
-                    ctx.moveTo(0, -r * 0.55);
-                    ctx.lineTo(-r * 0.25, -r * 0.78);
-                    ctx.moveTo(0, -r * 0.55);
-                    ctx.lineTo(r * 0.25, -r * 0.78);
-                    ctx.stroke();
-                    ctx.restore();
-                }
-                ctx.restore();
-            }
-
             function tick() {
-                ctx.clearRect(0, 0, width, height);
+                ctx.clearRect(0, 0, w, h);
                 for (const f of flakes) {
-                    f.x += f.vx;
-                    f.y += f.vy;
-                    f.angle += f.spin;
-                    if (f.y - f.size > height) {
-                        f.y = -f.size * 2;
-                        f.x = Math.random() * width;
+                    f.x += f.vx; f.y += f.vy; f.angle += f.spin;
+                    if (f.y - f.size > h) { f.y = -f.size * 2; f.x = Math.random() * w; }
+                    ctx.save(); ctx.translate(f.x, f.y);
+                    if (f.warm) {
+                        const g = ctx.createRadialGradient(0, 0, 0.5, 0, 0, f.size * 1.4);
+                        g.addColorStop(0, `rgba(255, 243, 220, ${f.alpha})`);
+                        g.addColorStop(1, 'rgba(218, 169, 133, 0)');
+                        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, f.size * 1.4, 0, Math.PI * 2); ctx.fill();
+                    } else {
+                        ctx.rotate(f.angle); ctx.strokeStyle = `rgba(226, 239, 250, ${f.alpha})`; ctx.lineWidth = 1.1;
+                        for (let k = 0; k < 6; k++) { ctx.save(); ctx.rotate((k * Math.PI) / 3); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -f.size); ctx.stroke(); ctx.restore(); }
                     }
-                    if (f.x + f.size < 0) f.x = width + f.size;
-                    if (f.x - f.size > width) f.x = -f.size;
-                    drawFlake(f);
+                    ctx.restore();
                 }
                 requestAnimationFrame(tick);
             }
