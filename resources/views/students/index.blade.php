@@ -24,6 +24,9 @@
 <body class="bg-midnight text-slate-200 font-sans antialiased h-screen overflow-hidden flex selection:bg-candlelight/30 selection:text-candlelight">
     @php
         $gpaScale = number_format((float) ($settings['gpa_scale'] ?? 3.00), 2);
+        $maxScaleNum = max((float) ($settings['gpa_scale'] ?? 3.00), 0.01);
+        $avgGpaNum = (float) $averageGpa;
+        $gpaBarPct = min(100, max(6, round(($avgGpaNum / $maxScaleNum) * 100)));
         $minGpaLabel = !empty($settings['data_integrity']) ? '1.00' : '0.00';
         $defaultStudentId = $nextStudentId ?? (($settings['student_id_prefix'] ?? 'STU-') . '0001');
     @endphp
@@ -48,7 +51,7 @@
                 </div>
 
                 <div class="py-4">
-                    <div class="p-3 bg-gradient-to-b from-midnight to-deepnavy/70 rounded-2xl border border-twilight flex items-center justify-between text-xs shadow-sm">
+                    <div class="p-3 bg-midnight/90 rounded-2xl border border-twilight flex items-center justify-between text-xs shadow-sm">
                         <div class="flex items-center space-x-2.5">
                             <div class="w-7 h-7 rounded-xl bg-deepnavy border border-starlight/40 flex items-center justify-center font-bold text-[10px] text-candlelight">EA</div>
                             <div>
@@ -91,66 +94,93 @@
         </div>
     </div>
 
-    <!-- Fixed Desktop Left Sidebar Navigation (No snow) -->
-    <aside class="w-64 h-full bg-gradient-to-b from-deepnavy via-deepnavy/95 to-midnight border-r border-twilight flex-col justify-between hidden md:flex shrink-0 shadow-2xl z-20">
-        <div>
-            <div class="p-6 border-b border-twilight flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-xl bg-midnight border border-starlight/50 flex items-center justify-center text-candlelight shadow-md">
-                    <div class="grid grid-cols-2 gap-0.5">
-                        <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
-                        <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                        <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
-                        <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
+    <!-- Fixed Desktop Left Sidebar Navigation (Layered dark midnight + ornament accents, no snow) -->
+    <aside class="relative w-64 h-full bg-gradient-to-b from-[#0E2438] via-deepnavy to-[#091622] border-r border-twilight/90 flex-col justify-between hidden md:flex shrink-0 shadow-2xl z-20 overflow-hidden">
+        <!-- Subtle top starlight sheen & winter corner ornament -->
+        <div class="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,_rgba(218,169,133,0.14),_transparent_70%)]"></div>
+        <svg class="pointer-events-none absolute top-16 right-3 w-12 h-12 text-candlelight/20" viewBox="0 0 48 48" fill="none">
+            <path d="M24 6V42M6 24H42M11.3 11.3L36.7 36.7M36.7 11.3L11.3 36.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            <circle cx="24" cy="24" r="3" fill="currentColor"/>
+        </svg>
+
+        <div class="relative z-10">
+            <!-- Brand Header + Delicate Garland Line -->
+            <div class="relative p-6 border-b border-twilight/80 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-xl bg-midnight border border-starlight/60 flex items-center justify-center text-candlelight shadow-md shadow-black/30">
+                        <div class="grid grid-cols-2 gap-0.5">
+                            <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
+                            <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                            <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                            <span class="w-1.5 h-1.5 bg-candlelight rounded-full"></span>
+                        </div>
                     </div>
+                    <span class="font-extrabold text-sm tracking-tight text-white">EduCore <span class="text-candlelight">SaaS</span></span>
                 </div>
-                <span class="font-extrabold text-sm tracking-tight text-white">EduCore <span class="text-candlelight">SaaS</span></span>
+                <span class="text-candlelight/70 text-xs">&#10022;</span>
+
+                <svg class="pointer-events-none absolute inset-x-0 -bottom-2.5 w-full h-5 overflow-visible" viewBox="0 0 256 20" preserveAspectRatio="none" fill="none">
+                    <path d="M0 2Q42 14 85 2T170 2T256 2" stroke="#4572AB" stroke-width="1" stroke-opacity="0.65"/>
+                    <circle cx="42" cy="8" r="2.2" fill="#DAA985"/>
+                    <circle cx="42" cy="8" r="5" fill="#DAA985" fill-opacity="0.22"/>
+                    <circle cx="128" cy="8" r="2.2" fill="#FFF3DC"/>
+                    <circle cx="128" cy="8" r="5" fill="#DAA985" fill-opacity="0.22"/>
+                    <circle cx="213" cy="8" r="2.2" fill="#DAA985"/>
+                    <circle cx="213" cy="8" r="5" fill="#DAA985" fill-opacity="0.22"/>
+                </svg>
             </div>
 
-            <div class="p-4">
-                <div class="p-3 bg-midnight/90 rounded-2xl border border-twilight flex items-center justify-between text-xs shadow-sm">
-                    <div class="flex items-center space-x-2.5">
-                        <div class="w-7 h-7 rounded-xl bg-deepnavy border border-starlight/40 flex items-center justify-center font-bold text-[10px] text-candlelight">EA</div>
-                        <div>
-                            <p class="font-bold text-white leading-tight">{{ $settings['workspace_name'] ?? session('workspace_name', 'EduCore Workspace') }}</p>
-                            <p class="text-[10px] text-slate-400 font-medium mt-0.5">Records space</p>
+            <!-- Workspace Card -->
+            <div class="p-4 pt-5">
+                <div class="p-3 bg-midnight/90 rounded-2xl border border-twilight/90 flex items-center justify-between text-xs shadow-inner shadow-black/30">
+                    <div class="flex items-center space-x-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-deepnavy to-midnight border border-candlelight/40 flex items-center justify-center font-extrabold text-[10px] text-candlelight shrink-0">EA</div>
+                        <div class="min-w-0">
+                            <p class="font-bold text-white leading-tight truncate">{{ $settings['workspace_name'] ?? session('workspace_name', 'EduCore Workspace') }}</p>
+                            <p class="text-[10px] text-slate-400 font-medium mt-0.5 truncate">{{ $settings['academic_term'] ?? 'Records space' }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Navigation -->
             <div class="px-4 py-2">
-                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Menu</p>
+                <div class="flex items-center justify-between px-3 mb-2">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Menu</p>
+                    <span class="text-[10px] text-candlelight/60">&#10052;</span>
+                </div>
                 <nav class="space-y-1">
-                    <a href="{{ route('students.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-2xl bg-midnight text-candlelight font-bold text-xs border border-starlight/50 shadow-sm">
+                    <a href="{{ route('students.index') }}" class="flex items-center justify-between px-3 py-2.5 rounded-2xl bg-gradient-to-r from-midnight to-deepnavy/90 text-candlelight font-bold text-xs border border-candlelight/35 shadow-md shadow-black/25">
                         <div class="flex items-center space-x-3">
-                            <span class="w-1.5 h-1.5 rounded-full bg-candlelight"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-candlelight shadow-[0_0_8px_rgba(218,169,133,0.8)]"></span>
                             <span>Dashboard</span>
                         </div>
                     </a>
-                    <a href="{{ route('students.directory') }}" class="flex items-center justify-between px-3 py-2.5 rounded-2xl text-slate-300 hover:bg-midnight/60 hover:text-white text-xs font-semibold transition">
+                    <a href="{{ route('students.directory') }}" class="flex items-center justify-between px-3 py-2.5 rounded-2xl text-slate-300 hover:bg-midnight/65 hover:text-white text-xs font-semibold transition">
                         <div class="flex items-center space-x-3">
                             <span>Student Directory</span>
                         </div>
-                        <span class="px-1.5 py-0.5 bg-midnight text-candlelight border border-twilight rounded-md text-[10px] font-bold">{{ $totalStudents }}</span>
+                        <span class="px-2 py-0.5 bg-midnight text-candlelight border border-twilight rounded-lg text-[10px] font-bold">{{ $totalStudents }}</span>
                     </a>
-                    <a href="{{ route('actions') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-2xl text-slate-300 hover:bg-midnight/60 hover:text-white text-xs font-semibold transition">
+                    <a href="{{ route('actions') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-2xl text-slate-300 hover:bg-midnight/65 hover:text-white text-xs font-semibold transition">
                         <span>Actions</span>
                     </a>
                 </nav>
             </div>
         </div>
 
-        <div class="p-4 border-t border-twilight space-y-4">
+        <!-- Bottom Manage & Admin Card -->
+        <div class="relative z-10 p-4 border-t border-twilight/80 bg-midnight/35 space-y-4">
             <div class="px-2">
                 <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Manage</p>
-                <a href="{{ route('settings') }}" class="flex items-center space-x-3 px-3 py-2 rounded-2xl text-slate-300 hover:bg-midnight/60 hover:text-white text-xs font-semibold transition">
+                <a href="{{ route('settings') }}" class="flex items-center space-x-3 px-3 py-2 rounded-2xl text-slate-300 hover:bg-midnight/65 hover:text-white text-xs font-semibold transition">
                     <span>Settings</span>
                 </a>
             </div>
 
-            <div class="flex items-center justify-between p-3 bg-midnight/90 border border-twilight rounded-2xl shadow-sm">
+            <div class="flex items-center justify-between p-3 bg-midnight/95 border border-twilight rounded-2xl shadow-md shadow-black/30">
                 <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="flex items-center space-x-3 cursor-pointer min-w-0 flex-1">
-                    <div class="w-8 h-8 rounded-full bg-deepnavy border border-candlelight/40 text-candlelight font-bold flex items-center justify-center text-xs shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-deepnavy border border-candlelight/50 text-candlelight font-bold flex items-center justify-center text-xs shrink-0">
                         {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
                     </div>
                     <div class="min-w-0">
@@ -170,18 +200,31 @@
 
     <!-- Scrollable Right Main Content Wrapper (Snow only inside right panel) -->
     <main class="relative flex-1 h-full flex flex-col min-w-0 overflow-hidden bg-midnight">
-        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.22),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.08),_transparent_60%)] z-0"></div>
+        <div class="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(69,114,171,0.24),_transparent_65%),radial-gradient(ellipse_at_bottom,_rgba(218,169,133,0.09),_transparent_60%)] z-0"></div>
         <canvas id="rightPanelSnow" class="pointer-events-none absolute inset-0 w-full h-full z-0"></canvas>
 
         <!-- Bottom Moonlit Snowdrift inside Right Panel -->
         <div class="pointer-events-none absolute inset-x-0 bottom-0 h-14 z-10 overflow-hidden">
             <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
-                <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.45"/>
-                <path d="M0 56C320 38 620 70 960 48C1180 34 1330 62 1440 50V80H0V56Z" fill="#E8F1F8" fill-opacity="0.1"/>
+                <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#273B5C" fill-opacity="0.5"/>
+                <path d="M0 56C320 38 620 70 960 48C1180 34 1330 62 1440 50V80H0V56Z" fill="#E8F1F8" fill-opacity="0.12"/>
             </svg>
         </div>
 
-        <header class="relative z-10 bg-midnight/90 backdrop-blur-md border-b border-twilight h-16 flex items-center justify-between px-6 shrink-0 shadow-md shadow-black/20">
+        <!-- Top Bar with Candlelight Fairy Lights -->
+        <header class="relative z-10 bg-midnight/90 backdrop-blur-md border-b border-twilight h-16 flex items-center justify-between px-6 shrink-0 shadow-lg shadow-black/25">
+            <svg class="pointer-events-none absolute inset-x-0 -bottom-2.5 w-full h-5 z-20 overflow-visible" viewBox="0 0 1200 20" preserveAspectRatio="none" fill="none">
+                <path d="M0 2Q150 15 300 2T600 2T900 2T1200 2" stroke="#4572AB" stroke-width="1.1" stroke-opacity="0.65"/>
+                <circle cx="150" cy="9.5" r="2.6" fill="#DAA985"/>
+                <circle cx="150" cy="9.5" r="6" fill="#DAA985" fill-opacity="0.22"/>
+                <circle cx="450" cy="9.5" r="2.6" fill="#FFF3DC"/>
+                <circle cx="450" cy="9.5" r="6" fill="#DAA985" fill-opacity="0.22"/>
+                <circle cx="750" cy="9.5" r="2.6" fill="#DAA985"/>
+                <circle cx="750" cy="9.5" r="6" fill="#DAA985" fill-opacity="0.22"/>
+                <circle cx="1050" cy="9.5" r="2.6" fill="#FFF3DC"/>
+                <circle cx="1050" cy="9.5" r="6" fill="#DAA985" fill-opacity="0.22"/>
+            </svg>
+
             <div class="flex items-center space-x-3">
                 <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-2 text-candlelight hover:bg-deepnavy rounded-xl transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -190,7 +233,10 @@
             </div>
 
             <div class="flex items-center space-x-3">
-                <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-md shadow-candlelight/15 cursor-pointer">
+                <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full bg-deepnavy/90 border border-twilight text-[10px] font-semibold text-slate-300">
+                    <span class="w-1.5 h-1.5 rounded-full bg-candlelight mr-1.5"></span> {{ $gpaScale }} Scale
+                </span>
+                <div onclick="document.getElementById('profileModal').classList.remove('hidden')" class="w-8 h-8 rounded-xl bg-candlelight text-midnight font-extrabold text-xs flex items-center justify-center shadow-md shadow-candlelight/20 cursor-pointer">
                     {{ strtoupper(substr(session('admin_name', 'Alex Davis'), 0, 2)) }}
                 </div>
             </div>
@@ -214,25 +260,37 @@
                 </div>
             @endif
 
-            <!-- Greeting Banner -->
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between bg-gradient-to-r from-deepnavy/95 via-deepnavy/90 to-midnight/95 backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-2xl shadow-black/30">
+            <!-- Greeting Banner with Winter Cap Accent -->
+            <div class="relative flex flex-col md:flex-row md:items-center md:justify-between bg-gradient-to-r from-deepnavy via-[#133450] to-midnight/95 backdrop-blur-md p-6 md:p-7 rounded-3xl border border-twilight shadow-2xl shadow-black/35 overflow-visible">
                 <div>
-                    <p id="live-date" class="text-[10px] font-extrabold tracking-widest text-candlelight uppercase mb-1">MONDAY, MAY 26</p>
-                    <h1 id="live-greeting" class="text-2xl font-extrabold tracking-tight text-white">Good morning, {{ session('admin_name', 'Alex') }}.</h1>
-                    <p class="text-xs text-slate-300 mt-0.5">Keep track of enrolled students, GPAs, and course rosters.</p>
+                    <div class="inline-flex items-center space-x-2 mb-1.5">
+                        <span id="live-date" class="text-[10px] font-extrabold tracking-widest text-candlelight uppercase">MONDAY, MAY 26</span>
+                        <span class="text-slate-600">&bull;</span>
+                        <span class="text-[10px] font-semibold text-slate-400">{{ $settings['academic_term'] ?? 'Current Term' }}</span>
+                    </div>
+                    <h1 class="relative inline-block text-2xl md:text-3xl font-extrabold tracking-tight text-white">
+                        <svg class="w-7 h-7 md:w-8 md:h-8 absolute -top-4 -left-4 -rotate-12 pointer-events-none drop-shadow" viewBox="0 0 48 48" fill="none">
+                            <path d="M9 32C11 17 20 7 35 6C29 13 28 21 31 32H9Z" fill="#273B5C" stroke="#4572AB" stroke-width="1.2"/>
+                            <path d="M35 6C40 7 43 11 44 15.5" stroke="#4572AB" stroke-width="3.5" stroke-linecap="round"/>
+                            <circle cx="44.5" cy="16" r="3.8" fill="#DAA985" stroke="#FFF3DC" stroke-width="1.1"/>
+                            <rect x="6.5" y="31" width="27" height="6.5" rx="3.2" fill="#F8FAFC"/>
+                        </svg>
+                        <span id="live-greeting" class="pl-2">Good morning, {{ session('admin_name', 'Alex') }}.</span>
+                    </h1>
+                    <p class="text-xs text-slate-300 mt-1">Keep track of enrolled students, GPAs, and course rosters.</p>
                 </div>
-                <button type="button" onclick="openAddModal()" class="mt-4 md:mt-0 px-5 py-3 bg-candlelight text-midnight rounded-2xl text-xs font-extrabold hover:bg-[#e5ba99] transition transform hover:-translate-y-0.5 shadow-lg shadow-candlelight/20 flex items-center justify-center space-x-2">
+                <button type="button" onclick="openAddModal()" class="mt-4 md:mt-0 px-5 py-3 bg-candlelight text-midnight rounded-2xl text-xs font-extrabold hover:bg-[#e5ba99] transition transform hover:-translate-y-0.5 shadow-lg shadow-candlelight/20 flex items-center justify-center space-x-2 shrink-0">
                     <span>+ Add Student</span>
                 </button>
             </div>
 
             <!-- Metric Stats Row -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <a href="{{ route('students.directory') }}" class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-xl flex flex-col justify-between hover:border-starlight transition block">
+                <a href="{{ route('students.directory') }}" class="group bg-gradient-to-b from-deepnavy/95 to-[#0D2133] backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-xl flex flex-col justify-between hover:border-candlelight/50 transition transform hover:-translate-y-0.5 block">
                     <div>
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Total Students</span>
-                            <span class="w-8 h-8 rounded-xl bg-midnight border border-twilight flex items-center justify-center text-candlelight">
+                            <span class="w-8 h-8 rounded-xl bg-midnight border border-twilight group-hover:border-candlelight/40 flex items-center justify-center text-candlelight transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0"/></svg>
                             </span>
                         </div>
@@ -242,17 +300,17 @@
                         </div>
                         <p class="text-[11px] text-slate-400 mt-1">saved student profiles</p>
                     </div>
-                    <div class="mt-6 pt-3 border-t border-twilight flex items-center justify-between">
+                    <div class="mt-6 pt-3 border-t border-twilight/80 flex items-center justify-between">
                         <span class="text-[10px] text-slate-400 font-medium">Open directory</span>
-                        <span class="text-[10px] font-bold text-candlelight">View &rarr;</span>
+                        <span class="text-[10px] font-bold text-candlelight group-hover:translate-x-0.5 transition">View &rarr;</span>
                     </div>
                 </a>
 
-                <a href="{{ Route::has('students.gpa') ? route('students.gpa') : url('/gpa-analytics') }}" class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-xl flex flex-col justify-between hover:border-starlight transition block">
+                <a href="{{ Route::has('students.gpa') ? route('students.gpa') : url('/gpa-analytics') }}" class="group bg-gradient-to-b from-deepnavy/95 to-[#0D2133] backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-xl flex flex-col justify-between hover:border-candlelight/50 transition transform hover:-translate-y-0.5 block">
                     <div>
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Average GPA</span>
-                            <span class="w-8 h-8 rounded-xl bg-midnight border border-twilight flex items-center justify-center text-candlelight">
+                            <span class="w-8 h-8 rounded-xl bg-midnight border border-twilight group-hover:border-candlelight/40 flex items-center justify-center text-candlelight transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                             </span>
                         </div>
@@ -261,18 +319,21 @@
                             <span class="text-[11px] text-candlelight bg-midnight border border-twilight px-2.5 py-0.5 rounded-lg font-bold">Live</span>
                         </div>
                         <p class="text-[11px] text-slate-400 mt-1">current average ({{ $gpaScale }} scale)</p>
+                        <div class="w-full h-1.5 bg-midnight rounded-full overflow-hidden mt-3 border border-twilight/70">
+                            <div class="h-full bg-gradient-to-r from-starlight to-candlelight rounded-full" style="width: {{ $gpaBarPct }}%"></div>
+                        </div>
                     </div>
-                    <div class="mt-6 pt-3 border-t border-twilight flex items-center justify-between">
+                    <div class="mt-5 pt-3 border-t border-twilight/80 flex items-center justify-between">
                         <span class="text-[11px] text-slate-400 font-medium">Grade breakdown</span>
-                        <span class="text-[10px] font-bold text-candlelight">Open &rarr;</span>
+                        <span class="text-[10px] font-bold text-candlelight group-hover:translate-x-0.5 transition">Open &rarr;</span>
                     </div>
                 </a>
 
-                <a href="{{ Route::has('students.courses') ? route('students.courses') : url('/courses') }}" class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-xl flex flex-col justify-between hover:border-starlight transition block">
+                <a href="{{ Route::has('students.courses') ? route('students.courses') : url('/courses') }}" class="group bg-gradient-to-b from-deepnavy/95 to-[#0D2133] backdrop-blur-md p-6 rounded-3xl border border-twilight shadow-xl flex flex-col justify-between hover:border-candlelight/50 transition transform hover:-translate-y-0.5 block">
                     <div>
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Active Courses</span>
-                            <span class="w-8 h-8 rounded-xl bg-midnight border border-twilight flex items-center justify-center text-candlelight">
+                            <span class="w-8 h-8 rounded-xl bg-midnight border border-twilight group-hover:border-candlelight/40 flex items-center justify-center text-candlelight transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                             </span>
                         </div>
@@ -282,15 +343,15 @@
                         </div>
                         <p class="text-[11px] text-slate-400 mt-1">courses in use</p>
                     </div>
-                    <div class="mt-6 pt-3 border-t border-twilight flex items-center justify-between">
+                    <div class="mt-6 pt-3 border-t border-twilight/80 flex items-center justify-between">
                         <span class="text-[10px] text-slate-400 font-medium">Manage courses</span>
-                        <span class="text-[10px] font-bold text-candlelight">Edit / Delete &rarr;</span>
+                        <span class="text-[10px] font-bold text-candlelight group-hover:translate-x-0.5 transition">Edit / Delete &rarr;</span>
                     </div>
                 </a>
             </div>
 
             <!-- Student Directory Section -->
-            <div class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md rounded-3xl border border-twilight shadow-2xl shadow-black/30 overflow-hidden">
+            <div class="bg-gradient-to-b from-deepnavy/95 to-midnight/95 backdrop-blur-md rounded-3xl border border-twilight shadow-2xl shadow-black/35 overflow-hidden">
                 <div class="p-6 border-b border-twilight flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div>
                         <h2 class="text-base font-bold text-white">Student Directory</h2>
@@ -327,7 +388,7 @@
                         </thead>
                         <tbody class="divide-y divide-twilight/60 text-xs">
                             @forelse ($students as $student)
-                                <tr class="hover:bg-midnight/50 transition">
+                                <tr class="hover:bg-midnight/55 transition">
                                     <td class="py-4 px-4 font-mono font-semibold text-candlelight">{{ $student->student_id }}</td>
                                     <td class="py-4 px-4">
                                         <div class="flex items-center space-x-3">
@@ -565,7 +626,7 @@
             const ctx = canvas.getContext('2d');
             let width = 0;
             let height = 0;
-            const flakes = Array.from({ length: 42 }, (_, idx) => ({
+            const flakes = Array.from({ length: 46 }, (_, idx) => ({
                 x: Math.random() * 1200,
                 y: Math.random() * 900,
                 size: 4 + Math.random() * 5.5,
@@ -588,13 +649,13 @@
                 ctx.save();
                 ctx.translate(f.x, f.y);
                 if (f.warm) {
-                    const grad = ctx.createRadialGradient(0, 0, 0.5, 0, 0, f.size * 1.35);
+                    const grad = ctx.createRadialGradient(0, 0, 0.5, 0, 0, f.size * 1.4);
                     grad.addColorStop(0, `rgba(255, 243, 220, ${f.alpha})`);
-                    grad.addColorStop(0.55, `rgba(218, 169, 133, ${f.alpha * 0.5})`);
+                    grad.addColorStop(0.55, `rgba(218, 169, 133, ${f.alpha * 0.52})`);
                     grad.addColorStop(1, 'rgba(218, 169, 133, 0)');
                     ctx.fillStyle = grad;
                     ctx.beginPath();
-                    ctx.arc(0, 0, f.size * 1.35, 0, Math.PI * 2);
+                    ctx.arc(0, 0, f.size * 1.4, 0, Math.PI * 2);
                     ctx.fill();
                     ctx.restore();
                     return;
