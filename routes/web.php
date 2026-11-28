@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
@@ -475,7 +476,39 @@ Route::post('/forgot-password/reset', function (Request $request) {
 Route::get('/students', [StudentController::class, 'index'])->name('students.index');
 Route::get('/directory', [StudentController::class, 'directory'])->name('students.directory');
 Route::get('/gpa-analytics', [StudentController::class, 'gpaAnalytics'])->name('students.gpa');
-Route::get('/courses', [StudentController::class, 'courses'])->name('students.courses');
+Route::get('/courses', function (Request $request) {
+    $response = app(StudentController::class)->courses($request);
+
+    if ($response instanceof \Illuminate\View\View) {
+        $data = $response->getData();
+        $existingCourses = collect($data['courses'] ?? []);
+
+        $knownNames = $existingCourses->map(function ($item) {
+            if (is_string($item)) return trim($item);
+            if (is_array($item)) return trim((string) ($item['course'] ?? $item['name'] ?? $item['course_name'] ?? ''));
+            if (is_object($item)) return trim((string) ($item->course ?? $item->name ?? $item->course_name ?? ''));
+            return '';
+        })->filter()->map(fn ($n) => Str::lower($n))->all();
+
+        $userId = Auth::id() ?? session('user_id');
+        $allAvailable = getAvailableCourses(is_numeric($userId) ? (int) $userId : null);
+
+        foreach ($allAvailable as $courseName) {
+            if (!in_array(Str::lower($courseName), $knownNames, true)) {
+                $existingCourses->push((object) [
+                    'name'           => $courseName,
+                    'course'         => $courseName,
+                    'students_count' => 0,
+                    'average_gpa'    => '0.00',
+                ]);
+            }
+        }
+
+        $response->with('courses', $existingCourses);
+    }
+
+    return $response;
+})->name('students.courses');
 Route::post('/courses', function (Request $request) {
     $validated = $request->validate([
         'name' => ['required', 'string', 'max:60'],
