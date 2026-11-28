@@ -447,7 +447,7 @@ Route::post('/settings', [StudentController::class, 'updateSettings'])->name('se
 
 Route::post('/logout', function (Request $request) {
     $loggedInUser = Auth::user();
-    $sessionUserId = $loggedInUser?->id ?? session('user_id');
+    $sessionUserId = $loggedInUser?->id ?? session('user_id');  
     recordAuditLog('auth.logout', is_numeric($sessionUserId) ? (int) $sessionUserId : null, $request, 'User logged out');
 
     Auth::logout();
