@@ -15,6 +15,8 @@
                         birch: '#8FA4B2',
                         iceborder: '#C4D5E0',
                         snowmist: '#EBF1F5',
+                        holly: '#2D5A4C',
+                        tinsel: '#C9A96E',
                     }
                 }
             }
@@ -25,8 +27,27 @@
     <!-- Full-Page Snowflake Layer (Skips Log in & Get started action zone) -->
     <canvas id="pageSnowflakes" class="pointer-events-none fixed inset-0 w-full h-full z-30"></canvas>
 
+    <!-- Subtle Snowdrift Base along Viewport Bottom -->
+    <div class="pointer-events-none fixed inset-x-0 bottom-0 h-14 z-20 overflow-hidden">
+        <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none" fill="none">
+            <path d="M0 42C240 16 480 62 760 36C1020 12 1240 54 1440 28V80H0V42Z" fill="#FFFFFF" fill-opacity="0.72"/>
+            <path d="M0 56C320 38 620 70 960 48C1180 34 1330 62 1440 50V80H0V56Z" fill="#FFFFFF" fill-opacity="0.92"/>
+        </svg>
+    </div>
+
     <!-- Top Bar -->
     <header class="relative w-full bg-[#E1EAF0]/90 backdrop-blur-md border-b border-iceborder h-20 flex items-center justify-between px-6 md:px-10 sticky top-0 z-40 shadow-sm">
+        <!-- Subtle Festive Garland & Mini Ornaments along Header Bottom Edge -->
+        <svg class="pointer-events-none absolute inset-x-0 -bottom-2.5 w-full h-5 z-30 overflow-visible" viewBox="0 0 1440 24" preserveAspectRatio="none" fill="none">
+            <path d="M0 2Q180 16 360 2T720 2T1080 2T1440 2" stroke="#8FA4B2" stroke-width="1.2" stroke-dasharray="3 3"/>
+            <!-- Mini frosted ornaments -->
+            <circle cx="180" cy="11" r="3.2" fill="#2D5A4C" stroke="#FFFFFF" stroke-width="1"/>
+            <circle cx="360" cy="11" r="3.2" fill="#C9A96E" stroke="#FFFFFF" stroke-width="1"/>
+            <circle cx="540" cy="11" r="3.2" fill="#1D3547" stroke="#FFFFFF" stroke-width="1"/>
+            <circle cx="720" cy="11" r="3.2" fill="#C9A96E" stroke="#FFFFFF" stroke-width="1"/>
+            <circle cx="900" cy="11" r="3.2" fill="#2D5A4C" stroke="#FFFFFF" stroke-width="1"/>
+        </svg>
+
         <div class="flex items-center space-x-3">
             <div class="w-9 h-9 rounded-xl bg-alpine flex items-center justify-center text-white shadow-sm">
                 <div class="grid grid-cols-2 gap-0.5">
@@ -55,19 +76,21 @@
     <!-- Hero Section -->
     <section class="relative z-10 max-w-5xl mx-auto px-6 pt-20 pb-12 text-center space-y-8">
         <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-white/85 border border-iceborder rounded-full shadow-sm text-xs font-semibold text-alpine">
-            <span class="w-2 h-2 rounded-full bg-alpine"></span>
+            <span class="text-tinsel text-sm leading-none">&#10022;</span>
             <span>Winter Term &bull; Student management, thoughtfully simplified</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-holly"></span>
         </div>
 
         <div class="space-y-3">
             <h1 class="text-4xl md:text-6xl font-extrabold text-alpine tracking-tight leading-tight">
                 <span class="relative inline-block">
-                    <!-- Alpine Elf Hat -->
-                    <svg class="w-9 h-9 md:w-11 md:h-11 text-alpine absolute -top-6 -left-5 -rotate-12 pointer-events-none drop-shadow-sm" viewBox="0 0 48 48" fill="none">
-                        <path d="M9 31C11 17 20 8 34 7C29 13 28 21 31 31H9Z" fill="#1D3547"/>
-                        <path d="M34 7C39 8 42 12 43 16" stroke="#1D3547" stroke-width="3.5" stroke-linecap="round"/>
-                        <circle cx="43.5" cy="16.5" r="3.5" fill="#FFFFFF" stroke="#C4D5E0" stroke-width="1.5"/>
-                        <rect x="7" y="30" width="26" height="6.5" rx="3.25" fill="#FFFFFF" stroke="#C4D5E0" stroke-width="1.5"/>
+                    <!-- Winter Holiday Hat -->
+                    <svg class="w-10 h-10 md:w-12 md:h-12 text-alpine absolute -top-7 -left-6 -rotate-12 pointer-events-none drop-shadow-sm" viewBox="0 0 48 48" fill="none">
+                        <path d="M9 32C11 17 20 7 35 6C29 13 28 21 31 32H9Z" fill="#1D3547"/>
+                        <path d="M25 14.5C28 15 30 16.5 31 18.5" stroke="#C9A96E" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M35 6C40 7 43 11 44 15.5" stroke="#1D3547" stroke-width="3.5" stroke-linecap="round"/>
+                        <circle cx="44.5" cy="16" r="3.8" fill="#FFFFFF" stroke="#C4D5E0" stroke-width="1.5"/>
+                        <rect x="6.5" y="31" width="27" height="7" rx="3.5" fill="#FFFFFF" stroke="#C4D5E0" stroke-width="1.5"/>
                     </svg>
                     Simplify student records.
                 </span>
@@ -101,8 +124,8 @@
             <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-iceborder/80">
                 <div class="flex items-center space-x-2">
                     <div class="w-3 h-3 rounded-full bg-iceborder"></div>
-                    <div class="w-3 h-3 rounded-full bg-birch"></div>
-                    <div class="w-3 h-3 rounded-full bg-alpine"></div>
+                    <div class="w-3 h-3 rounded-full bg-holly/70"></div>
+                    <div class="w-3 h-3 rounded-full bg-tinsel"></div>
                     <span class="text-xs font-mono text-slateice ml-2">educore.app/workspace/dashboard (Live DB Connected)</span>
                 </div>
                 <div class="flex items-center space-x-2 bg-snowmist p-1 rounded-xl border border-iceborder/70">
@@ -277,7 +300,7 @@
     <section class="relative z-10 max-w-6xl mx-auto px-6 py-12">
         <div class="bg-alpine text-white rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg border border-[#152734]">
             <div class="space-y-2 text-center md:text-left">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-iceborder">Winter Term Ready</p>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-tinsel">Winter Term Ready</p>
                 <h3 class="text-xl md:text-2xl font-extrabold">Give your team time back.</h3>
                 <p class="text-xs text-snowmist/90 max-w-md">Set up your workspace and keep student records organized in one place.</p>
             </div>
@@ -365,7 +388,7 @@
             let width = 0;
             let height = 0;
 
-            const flakes = Array.from({ length: 46 }, () => ({
+            const flakes = Array.from({ length: 48 }, () => ({
                 x: Math.random() * 1600,
                 y: Math.random() * 1000,
                 size: 5 + Math.random() * 6.5,
@@ -383,7 +406,7 @@
             resize();
             window.addEventListener('resize', resize);
 
-            function isInsideExcludedZone(x, y, pad = 10) {
+            function isInsideExcludedZone(x, y, pad = 12) {
                 if (!excludedEl) return false;
                 const rect = excludedEl.getBoundingClientRect();
                 return (
@@ -445,7 +468,7 @@
                     if (f.x + f.size < 0) f.x = width + f.size;
                     if (f.x - f.size > width) f.x = -f.size;
 
-                    if (!isInsideExcludedZone(f.x, f.y, f.size + 8)) {
+                    if (!isInsideExcludedZone(f.x, f.y, f.size + 10)) {
                         drawSnowflake(f);
                     }
                 }
