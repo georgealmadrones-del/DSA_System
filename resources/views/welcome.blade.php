@@ -41,7 +41,6 @@
         <!-- Warm Candlelight Fairy Lights Garland along Header Bottom Edge -->
         <svg class="pointer-events-none absolute inset-x-0 -bottom-3 w-full h-6 z-30 overflow-visible" viewBox="0 0 1440 24" preserveAspectRatio="none" fill="none">
             <path d="M0 2Q180 17 360 2T720 2T1080 2T1440 2" stroke="#4572AB" stroke-width="1.2" stroke-opacity="0.7"/>
-            <!-- Glowing Warm Candlelight Bulbs -->
             <circle cx="180" cy="11.5" r="3.2" fill="#DAA985"/>
             <circle cx="180" cy="11.5" r="7" fill="#DAA985" fill-opacity="0.25"/>
             <circle cx="360" cy="11.5" r="3.2" fill="#FFF3DC"/>
@@ -109,9 +108,15 @@
             </p>
         </div>
 
-        <p class="text-sm md:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            One workspace to organize student records, track academic performance, and keep department data clean.
-        </p>
+        <div class="space-y-2">
+            <p class="text-sm md:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
+                One workspace to organize student records, track academic performance, and keep department data clean.
+            </p>
+            <p class="text-[11px] text-candlelight/75 tracking-wider font-medium inline-flex items-center space-x-1.5">
+                <span>&#10023;</span>
+                <span>Happy holidays &mdash; wishing you a calm &amp; bright season.</span>
+            </p>
+        </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <a href="{{ route('register') }}" class="w-full sm:w-auto px-8 py-4 bg-candlelight text-midnight text-xs font-extrabold rounded-2xl shadow-lg shadow-candlelight/20 hover:bg-[#e5ba99] transition transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
@@ -133,6 +138,7 @@
                     <div class="w-3 h-3 rounded-full bg-twilight"></div>
                     <div class="w-3 h-3 rounded-full bg-candlelight"></div>
                     <span class="text-xs font-mono text-slate-300 ml-2">educore.app/workspace/dashboard (Live DB Connected)</span>
+                    <span class="hidden sm:inline-flex items-center text-[10px] text-candlelight/80 bg-midnight/80 border border-twilight/80 px-2 py-0.5 rounded-full ml-1">&#10052; Season's greetings</span>
                 </div>
                 <div class="flex items-center space-x-2 bg-midnight p-1 rounded-xl border border-twilight">
                     <button type="button" onclick="switchTab('dashboard')" id="tab-dashboard" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-starlight text-white shadow-sm transition">Dashboard View</button>
@@ -306,7 +312,7 @@
     <section class="relative z-10 max-w-6xl mx-auto px-6 py-12">
         <div class="bg-gradient-to-r from-deepnavy via-twilight to-deepnavy text-white rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl border border-starlight/40">
             <div class="space-y-2 text-center md:text-left">
-                <p class="text-[10px] font-bold uppercase tracking-widest text-candlelight">Winter Term Ready</p>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-candlelight">Winter Term Ready &bull; Happy Holidays</p>
                 <h3 class="text-xl md:text-2xl font-extrabold">Give your team time back.</h3>
                 <p class="text-xs text-slate-300 max-w-md">Set up your workspace and keep student records organized in one place.</p>
             </div>
@@ -322,7 +328,7 @@
             <div class="w-6 h-6 rounded-lg bg-deepnavy border border-starlight/50 flex items-center justify-center text-candlelight text-[9px] font-bold">EA</div>
             <span class="font-bold text-white">EduCore SaaS</span>
         </div>
-        <p>&copy; 2026 EduCore. Built for better education by Group 1.</p>
+        <p>&copy; 2026 EduCore. Built for better education by Group 1 &bull; <span class="text-candlelight/80">Happy holidays</span></p>
         <div class="flex items-center space-x-6">
             <a href="#" class="hover:text-candlelight transition">Privacy</a>
             <a href="#" class="hover:text-candlelight transition">Terms</a>
